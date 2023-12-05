@@ -1,0 +1,923 @@
+comment: |
+  These are the questions specific to RFA on behalf of child. I built this in the Weaver.
+
+
+
+---
+include:
+  - docassemble.AssemblyLine:assembly_line.yml
+  - docassemble.ALAnyState:any_state.yml
+---
+metadata:
+  title: >-
+    Relief from Abuse order on behalf of a child or children
+  short title: >-
+    RFA on behalf of child
+  description: |-
+    This interview helps someone in Vermont ask the court for a Relief from Abuse order on behalf of a child or children.
+  tags: []
+  authors:
+    - VTCourtForms by Legal Services Vermont
+  allowed_courts: 
+    - "Family Court"
+  typical_role: "plaintiff"
+  al_weaver_version: "1.10.3"
+  generated_on: "2023-12-05"
+---
+code: |
+  # This controls the default country and list of states in address field questions
+  AL_DEFAULT_COUNTRY = "US"
+---
+code: |
+  # This controls the default state in address field questions
+  AL_DEFAULT_STATE = "VT"
+---
+code: |
+  github_repo_name =  'docassemble-Rfacomplaintonbehalfofminor'
+---
+code: |
+  interview_short_title = "Ask the court for a Relief from Abuse order on behalf of a child or children"
+---
+code: |
+  al_form_type = "starts_case" 
+---
+objects:
+  - users: ALPeopleList.using(ask_number=True,target_number=1)
+  - supervisor: ALPeopleList.using(there_are_any=True)
+---
+sections:
+  - review_rfacomplaintonbehalfofminor: Review your answers
+---
+#################### Interview order #####################
+comment: |
+  Controls order and branching logic for questions specific to this form
+id: interview_order_rfacomplaintonbehalfofminor
+code: |
+  # Set the allowed courts for this interview
+  allowed_courts = ['Family Court']
+  nav.set_section("review_rfacomplaintonbehalfofminor")
+  user_role = "plaintiff"
+  user_ask_role = "plaintiff"
+  who_needs_protection  
+  if who_needs_protection == 'I’m asking for an RFA order only for a child or children':
+    docket_number
+    children.gather()
+    children[0].birthdate
+    users.gather()
+    set_parts(subtitle=str(users))
+    users1_relationship_to_children1
+    existing_order_divorce
+    set_progress(12)
+    recent_incident_date
+    danger_more_abuse_children
+    request_not_abuse_children
+    set_progress(24)
+    request_all_emergency
+    existing_order
+    trial_court.address.address
+    set_progress(36)
+
+    set_progress(48)
+    other_parties.gather()
+    other_parties[0].birthdate
+    users[0].birthdate
+    set_progress(60)
+    other_parties[0].address.address
+    children[1].birthdate
+    children[2].birthdate
+    set_progress(72)
+  signature_date
+  interview_order_rfacomplaintonbehalfofminor = True
+---
+###################### Main order ######################
+comment: |
+  This block includes the logic for standalone interviews.
+  Delete mandatory: True to include in another interview
+mandatory: True
+code: |
+  al_intro_screen
+  rfacomplaintonbehalfofminor_intro
+  interview_order_rfacomplaintonbehalfofminor
+  signature_date
+  # Store anonymous data for analytics / statistics
+  store_variables_snapshot(
+      persistent=True,
+      data={
+          "zip": showifdef("users[0].address.zip"),
+          "reached_interview_end": True,
+      },
+  )
+  rfacomplaintonbehalfofminor_download
+---
+comment: |
+  This question is used to introduce your interview. Please customize
+id: Relief_from_Abuse_order_on_behalf_of_a_child_or_children
+continue button field: rfacomplaintonbehalfofminor_intro
+question: |
+  Relief from Abuse order on behalf of a child or children
+subquestion: |
+  This interview will help you ask the court for a Relief from Abuse order on behalf of a child or children.
+---
+id: How children are related to you and Defendant
+question: |
+  How children are related to you and Defendant
+fields:
+  - "Your relationship to child 1": users1_relationship_to_children1
+    maxlength: 22
+  - "Parent or guardian": parent_guardian
+    datatype: yesno
+  - "Family member description": family_member_description
+    maxlength: 22
+  - "Family member": family_member
+    datatype: yesno
+  - "Person who lives or has lived in the household with the child": live_together
+    datatype: yesno
+  - "Child and defendant have or have had a dating relationship": dating
+    datatype: yesno
+  - "Other relationship description": other_relationship_description
+    maxlength: 22
+  - "Other relationship": other_relationship
+    datatype: yesno
+---
+---
+id: initial_screening_questions_3
+question: |
+  See if this interview is right for your situation
+fields:
+  - "Who needs protection from abuse?": who_needs_protection
+    input type: radio
+    choices:
+      - I need this order to protect me
+      - I need this order to protect me and my child or children
+      - I’m asking for an RFA order only for a child or children under the age of 18
+---
+
+
+
+
+
+
+
+
+
+---
+id: Existing orders or court proceedings
+question: |
+  Existing orders or court proceedings
+subquestion: |
+  Is there an existing court order or a pending court proceeding involving you, the defendant, and/or your child or children? 
+  
+  Don't include things you plan to do. Only include things that have been submitted to the court already.
+fields:  
+  - "Select all that apply": existing_order
+    datatype: checkboxes
+    required: False
+    choices:
+      - "For divorce or separation?": existing_order_divorce
+      - "For a civil union dissolution?": dissolution
+      - "For Relief from Abuse?": existing_order_RFA
+      - "For a criminal matter?": criminal_proceeding
+      - "For parentage?": parentage_order
+      - "For guardianship?": guardianship_order
+      - "For a juvenile (DCF) matter?": juvenile_order
+      - "For child support?": child_support_order
+    none of the above: false
+  - "In what state(s) is the existing order or a pending court proceeding?": existing_order_state
+    maxlength: 34
+    required: False
+    js show if: |
+      val("existing_order['existing_order_divorce']") || val("existing_order['dissolution']") || val("existing_order['existing_order_RFA']") || val("existing_order['criminal_proceeding']") || val("existing_order['parentage_order']") || val("existing_order['guardianship_order']") || val("existing_order['juvenile_order']") || val("existing_order['child_support_order']") 
+      
+  - "In what county/counties is the existing order or a pending court proceeding?": existing_order_county
+    maxlength: 36
+    required: False
+    js show if: |
+      val("existing_order['existing_order_divorce']") || val("existing_order['dissolution']") || val("existing_order['existing_order_RFA']") || val("existing_order['criminal_proceeding']") || val("existing_order['parentage_order']") || val("existing_order['guardianship_order']") || val("existing_order['juvenile_order']") || val("existing_order['child_support_order']") 
+      
+  - "What is the name of your attorney for the existing order or a pending court proceeding -- if you have one?": existing_order_users_attorney
+    maxlength: 25
+    required: False
+    js show if: |
+      val("existing_order['existing_order_divorce']") || val("existing_order['dissolution']") || val("existing_order['existing_order_RFA']") || val("existing_order['criminal_proceeding']") || val("existing_order['parentage_order']") || val("existing_order['guardianship_order']") || val("existing_order['juvenile_order']") || val("existing_order['child_support_order']")
+      
+  - "What is the name of the other attorney for the existing order or a pending court proceeding -- if the defendant has one?": existing_order_OP_attorney
+    maxlength: 25
+    required: False
+    js show if: |
+      val("existing_order['existing_order_divorce']") || val("existing_order['dissolution']") || val("existing_order['existing_order_RFA']") || val("existing_order['criminal_proceeding']") || val("existing_order['parentage_order']") || val("existing_order['guardianship_order']") || val("existing_order['juvenile_order']") || val("existing_order['child_support_order']") 
+---
+id: Incident of child abuse what happened
+question: |
+  Incident of child abuse: What happened
+fields:
+  - "Date of most serious incident": recent_incident_date
+    datatype: date
+  - "There was an incident": recent_incident_yes
+    datatype: yesno
+  - "Abused the child named above (physically injured or otherwise treated the child named above in a mannerwhich placed the child’s life, health, development or welfare in jeopardy.)": recent_incident_abused
+    datatype: yesno
+  - "Defendant is a parent/legal guardian for the child named above and either (1) inflicted physical punishmentout of anger, or (2) physically punished the child named above in an excessive, unreasonable, or cruel manner.": other_parties1_parent_abuse
+    datatype: yesno
+  - "Stalked the child named above as defined in 12 V.S.A. §5131(6).": recent_incident_stalked_children
+    datatype: yesno
+  - "Sexually assaulted or sexually abused the child named above as defined in 15 V.S.A. §5131(5).": recent_incident_assault
+    datatype: yesno
+  - "Attempted to cause or caused physical harm to the child named above.": recent_incident_harm
+    datatype: yesno
+  - "Placed the child named above in fear of imminent serious physical harm.": recent_incident_fear
+    datatype: yesno
+---
+id: Danger of more abuse
+question: |
+  Danger of more abuse
+fields:
+  - "There is danger of further abuse to the child/children": danger_more_abuse_children
+    datatype: yesno
+  - "There is danger of further abuse to other child(ren) in the household named below.": danger_more_abuse_other_children
+    datatype: yesno
+  - "There is danger of more abuse": danger_more_abuse
+    datatype: yesno
+  - "Children1 relationship to users1": children1_relationship_users1
+    maxlength: 19
+  - "Children1 relationship to OP": children1_relationship_OP
+    maxlength: 21
+  - "Children2 relationship to users1": children2_relationship_users1
+    maxlength: 19
+  - "Children2 relationship to OP": children2_relationship_OP
+    maxlength: 21
+  - "Children3 relationship users1": children3_relationship_users1
+    maxlength: 19
+  - "Children3 relationship to OP": children3_relationship_OP
+    maxlength: 21
+  - "Defendant has used, displayed, or threatened to use a firearm against the child(ren) named above or against a family member.": used_firearm
+    datatype: yesno
+  - "Defendant is incarcerated and has been convicted of one of the crimes specified in 15 V.S.A. §1103(c)(1)(B).": incarcerated
+    datatype: yesno
+  - "The child(ren) will be forced to leave their current home and will be without shelter unless Defendant is ordered to leave the residence.": children1_no_shelter
+    datatype: yesno
+  - "The home is located at": residence_shared_address
+    maxlength: 25
+  - "The home is owned.": residence_owned
+    datatype: yesno
+  - "The home is rented.": residence_rented
+    datatype: yesno
+  - "Residence of users1": residence_of_users1
+    datatype: yesno
+  - "Residence of both": residence_of_both
+    datatype: yesno
+  - "Residence of other": residence_of_other
+    datatype: yesno
+  - "Residence of OP": residence_of_OP
+    datatype: yesno
+---
+id: What you want in the order
+question: |
+  What you want in the order
+fields:
+  - "Order Defendant not abuse child(ren) and not interfere with their personal liberty.": request_not_abuse_children
+    datatype: yesno
+  - "Order Defendant refrain from stalking or sexually abusing the child(ren) named above.": request_no_stalking_assault
+    datatype: yesno
+  - "Order Defendant vacate immediately the residence (identified above) and sole possession be awarded to the Petitioner caring for the child(ren).": request_leave
+    datatype: yesno
+  - "Order Defendant not to possess or purchase firearms for the duration of the order.": request_no_firearms
+    datatype: yesno
+  - "Order Defendant to surrender immediately all firearms under Defendant’s ownership, possession, or control to law enforcement.": request_surrender_firearms
+    datatype: yesno
+  - "Order Defendant refrain from cruelly treating the pet(s) of the parties or the pet(s) of the child(ren).": request_no_pet_harm
+    datatype: yesno
+  - "Award temporary possession and control of any pet(s) owned by the parties or by the child(ren) named above to the Petitioner.": request_control_of_pet
+    datatype: yesno
+  - "Order Defendant to stay away from the child(ren).": request_stay_away_feet
+    maxlength: 7
+  - "This many feet:": request_stay_away
+    datatype: yesno
+  - "Order Defendant to refrain from contacting the minor child(ren) in any way.": request_no_contact_children
+    datatype: yesno
+  - "Award the Petitioner temporary custody (Parental Right and Responsibilities) for the child(ren) (Child(ren) of the Petitioner and Defendant).": request_temp_PRR
+    datatype: yesno
+  - "Names of other child/ren I want custody of.": other_children_PRR_names
+    maxlength: 68
+  - "I want custody of other children, too.": other_children_PRR
+    datatype: yesno
+  - "Order Defendant’s contact with the child(ren) supervised.": request_supervised_contact
+    datatype: yesno
+  - "Supervised by:": supervisor1_name
+    maxlength: 13
+  - "At this location:": supervisor1_location
+    maxlength: 27
+  - "Order exchanges of the child(ren) for parent child contact take place at a certain location.": request_children_exchange
+    datatype: yesno
+  - "At this location:": supervisor2_location
+    maxlength: 26
+  - "Supervised by:": supervisor2_name
+    maxlength: 21
+  - "Order Defendant not to take any regulated drug unless it is prescribed to Defendant by a physician or drink alcohol for at least 8 hours prior to a scheduled contact or during contact with the child(ren) and that Petitioner may cancel scheduled contact if Defendant appears to be under the influence of intoxicating substances (drugs/alcohol).": request_no_drug_or_alcohol
+    datatype: yesno
+  - "Order Defendant not physically punish the child(ren) in any way.": request_no_punish
+    datatype: yesno
+  - "Order Defendant to pay temporary child support for the child(ren).": request_child_support
+    datatype: yesno
+  - "Describe what you want.": request_other_description
+    maxlength: 77
+  - "Request something else.": request_other
+    datatype: yesno
+---
+id: Emergency order
+question: |
+  Emergency order
+fields:
+  - "The Petitioner requests on an emergency basis the same relief as requested above, to the extent available.": request_all_emergency
+    datatype: yesno
+---
+id: preview rfacomplaintonbehalfofminor
+question: |
+  Preview your form before you sign it
+subquestion: |
+  Here is a preview of the form you will sign on the next page.   
+  
+  ${ al_court_bundle.as_pdf(key='preview') }
+
+  Click the image to open it in a new tab. Click the "Edit answers" button
+  to edit your answers.
+
+  ${ action_button_html(url_action('review_rfacomplaintonbehalfofminor'), label='Edit answers', color='info') }
+  
+  Remember to come back to this window to continue and sign your form.
+continue button field: rfacomplaintonbehalfofminor_preview_question    
+---
+code: |
+  signature_fields = ['users[0].signature']
+---
+code: |
+  # This is a placeholder for the addresses that will be searched
+  # for matching address to court. Edit if court venue is based on 
+  # a different address than the user's
+  [user.address.address for user in users.complete_elements()]
+  addresses_to_search = [user.address for user in users.complete_elements()]
+---
+id: rfacomplaintonbehalfofminor review screen
+event: review_rfacomplaintonbehalfofminor
+question: |
+  Review your answers
+review:
+  - Edit: trial_court
+    button: |
+      **Trial court**
+  
+      % if defined("trial_court.address.county"):
+      * address: ${ trial_court.address.block() }
+      % endif
+  - Edit: docket_number
+    button: |
+      **Docket number**:
+      ${ docket_number }
+  - Edit: children.revisit
+    button: |
+      **Children**
+
+      % for item in children:
+        * ${ item }
+      % endfor
+  - Edit: other_parties.revisit
+    button: |
+      **Other parties**
+
+      % for item in other_parties:
+        * ${ item }
+      % endfor
+  - Edit: users.revisit
+    button: |
+      **Users**
+
+      % for item in users:
+        * ${ item }
+      % endfor
+  - Edit: users1_relationship_to_children1
+    button: |
+      **Your relationship to child 1**:
+      ${ users1_relationship_to_children1 }
+  - Edit: parent_guardian
+    button: |
+      **Parent or guardian**:
+      ${ word(yesno(parent_guardian)) }
+  - Edit: family_member_description
+    button: |
+      **Family member description**:
+      ${ family_member_description }
+  - Edit: family_member
+    button: |
+      **Family member**:
+      ${ word(yesno(family_member)) }
+  - Edit: live_together
+    button: |
+      **Person who lives or has lived in the household with the child**:
+      ${ word(yesno(live_together)) }
+  - Edit: dating
+    button: |
+      **Child and defendant have or have had a dating relationship**:
+      ${ word(yesno(dating)) }
+  - Edit: other_relationship_description
+    button: |
+      **Other relationship description**:
+      ${ other_relationship_description }
+  - Edit: other_relationship
+    button: |
+      **Other relationship**:
+      ${ word(yesno(other_relationship)) }
+  - Edit: existing_order_divorce
+    button: |
+      **Divorce/sep**:
+      ${ word(yesno(existing_order_divorce)) }
+  - Edit: dissolution
+    button: |
+      **Dissolution**:
+      ${ word(yesno(dissolution)) }
+  - Edit: existing_order_RFA
+    button: |
+      **Existing order RFA**:
+      ${ word(yesno(existing_order_RFA)) }
+  - Edit: criminal_proceeding
+    button: |
+      **Criminal proceeding**:
+      ${ word(yesno(criminal_proceeding)) }
+  - Edit: parentage_order
+    button: |
+      **Parentage order**:
+      ${ word(yesno(parentage_order)) }
+  - Edit: guardianship_order
+    button: |
+      **Guardianship order**:
+      ${ word(yesno(guardianship_order)) }
+  - Edit: child_support_order
+    button: |
+      **Child support order**:
+      ${ word(yesno(child_support_order)) }
+  - Edit: juvenile_order
+    button: |
+      **Juvenile order**:
+      ${ word(yesno(juvenile_order)) }
+  - Edit: existing_order_state
+    button: |
+      **Existing order state**:
+      ${ existing_order_state }
+  - Edit: existing_order_county
+    button: |
+      **Existing order county**:
+      ${ existing_order_county }
+  - Edit: existing_order_users_attorney
+    button: |
+      **Existing order users attorney**:
+      ${ existing_order_users_attorney }
+  - Edit: existing_order_OP_attorney
+    button: |
+      **Existing order OP attorney**:
+      ${ existing_order_OP_attorney }
+  - Edit: recent_incident_date
+    button: |
+      **Date of most serious incident**:
+      ${ recent_incident_date }
+  - Edit: recent_incident_yes
+    button: |
+      **There was an incident**:
+      ${ word(yesno(recent_incident_yes)) }
+  - Edit: recent_incident_abused
+    button: |
+      **Abused the child named above (physically injured or otherwise treated the child named above in a mannerwhich placed the child’s life, health, development or welfare in jeopardy.)**:
+      ${ word(yesno(recent_incident_abused)) }
+  - Edit: other_parties1_parent_abuse
+    button: |
+      **Defendant is a parent/legal guardian for the child named above and either (1) inflicted physical punishmentout of anger, or (2) physically punished the child named above in an excessive, unreasonable, or cruel manner.**:
+      ${ word(yesno(other_parties1_parent_abuse)) }
+  - Edit: recent_incident_stalked_children
+    button: |
+      **Stalked the child named above as defined in 12 V.S.A. §5131(6).**:
+      ${ word(yesno(recent_incident_stalked_children)) }
+  - Edit: recent_incident_assault
+    button: |
+      **Sexually assaulted or sexually abused the child named above as defined in 15 V.S.A. §5131(5).**:
+      ${ word(yesno(recent_incident_assault)) }
+  - Edit: recent_incident_harm
+    button: |
+      **Attempted to cause or caused physical harm to the child named above.**:
+      ${ word(yesno(recent_incident_harm)) }
+  - Edit: recent_incident_fear
+    button: |
+      **Placed the child named above in fear of imminent serious physical harm.**:
+      ${ word(yesno(recent_incident_fear)) }
+
+  - Edit: danger_more_abuse_children
+    button: |
+      **There is danger of further abuse to the child/children**:
+      ${ word(yesno(danger_more_abuse_children)) }
+  - Edit: danger_more_abuse_other_children
+    button: |
+      **There is danger of further abuse to other child(ren) in the household named below.**:
+      ${ word(yesno(danger_more_abuse_other_children)) }
+  - Edit: danger_more_abuse
+    button: |
+      **There is danger of more abuse**:
+      ${ word(yesno(danger_more_abuse)) }
+  - Edit: children1_relationship_users1
+    button: |
+      **Children1 relationship to users1**:
+      ${ children1_relationship_users1 }
+  - Edit: children1_relationship_OP
+    button: |
+      **Children1 relationship to OP**:
+      ${ children1_relationship_OP }
+  - Edit: children2_relationship_users1
+    button: |
+      **Children2 relationship to users1**:
+      ${ children2_relationship_users1 }
+  - Edit: children2_relationship_OP
+    button: |
+      **Children2 relationship to OP**:
+      ${ children2_relationship_OP }
+  - Edit: children3_relationship_users1
+    button: |
+      **Children3 relationship users1**:
+      ${ children3_relationship_users1 }
+  - Edit: children3_relationship_OP
+    button: |
+      **Children3 relationship to OP**:
+      ${ children3_relationship_OP }
+  - Edit: used_firearm
+    button: |
+      **Defendant has used, displayed, or threatened to use a firearm against the child(ren) named above or against a family member.**:
+      ${ word(yesno(used_firearm)) }
+  - Edit: incarcerated
+    button: |
+      **Defendant is incarcerated and has been convicted of one of the crimes specified in 15 V.S.A. §1103(c)(1)(B).**:
+      ${ word(yesno(incarcerated)) }
+  - Edit: children1_no_shelter
+    button: |
+      **The child(ren) will be forced to leave their current home and will be without shelter unless Defendant is ordered to leave the residence.**:
+      ${ word(yesno(children1_no_shelter)) }
+  - Edit: residence_shared_address
+    button: |
+      **The home is located at**:
+      ${ residence_shared_address }
+  - Edit: residence_owned
+    button: |
+      **The home is owned.**:
+      ${ word(yesno(residence_owned)) }
+  - Edit: residence_rented
+    button: |
+      **The home is rented.**:
+      ${ word(yesno(residence_rented)) }
+  - Edit: residence_of_users1
+    button: |
+      **Residence of users1**:
+      ${ word(yesno(residence_of_users1)) }
+  - Edit: residence_of_both
+    button: |
+      **Residence of both**:
+      ${ word(yesno(residence_of_both)) }
+  - Edit: residence_of_other
+    button: |
+      **Residence of other**:
+      ${ word(yesno(residence_of_other)) }
+  - Edit: residence_of_OP
+    button: |
+      **Residence of OP**:
+      ${ word(yesno(residence_of_OP)) }
+  - Edit: request_not_abuse_children
+    button: |
+      **Order Defendant not abuse child(ren) and not interfere with their personal liberty.**:
+      ${ word(yesno(request_not_abuse_children)) }
+  - Edit: request_no_stalking_assault
+    button: |
+      **Order Defendant refrain from stalking or sexually abusing the child(ren) named above.**:
+      ${ word(yesno(request_no_stalking_assault)) }
+  - Edit: request_leave
+    button: |
+      **Order Defendant vacate immediately the residence (identified above) and sole possession be awarded to the Petitioner caring for the child(ren).**:
+      ${ word(yesno(request_leave)) }
+  - Edit: request_no_firearms
+    button: |
+      **Order Defendant not to possess or purchase firearms for the duration of the order.**:
+      ${ word(yesno(request_no_firearms)) }
+  - Edit: request_surrender_firearms
+    button: |
+      **Order Defendant to surrender immediately all firearms under Defendant’s ownership, possession, or control to law enforcement.**:
+      ${ word(yesno(request_surrender_firearms)) }
+  - Edit: request_no_pet_harm
+    button: |
+      **Order Defendant refrain from cruelly treating the pet(s) of the parties or the pet(s) of the child(ren).**:
+      ${ word(yesno(request_no_pet_harm)) }
+  - Edit: request_control_of_pet
+    button: |
+      **Award temporary possession and control of any pet(s) owned by the parties or by the child(ren) named above to the Petitioner.**:
+      ${ word(yesno(request_control_of_pet)) }
+  - Edit: request_stay_away_feet
+    button: |
+      **Order Defendant to stay away from the child(ren).**:
+      ${ request_stay_away_feet }
+  - Edit: request_stay_away
+    button: |
+      **This many feet:**:
+      ${ word(yesno(request_stay_away)) }
+  - Edit: request_no_contact_children
+    button: |
+      **Order Defendant to refrain from contacting the minor child(ren) in any way.**:
+      ${ word(yesno(request_no_contact_children)) }
+  - Edit: request_temp_PRR
+    button: |
+      **Award the Petitioner temporary custody (Parental Right and Responsibilities) for the child(ren) (Child(ren) of the Petitioner and Defendant).**:
+      ${ word(yesno(request_temp_PRR)) }
+  - Edit: other_children_PRR_names
+    button: |
+      **Names of other child/ren I want custody of.**:
+      ${ other_children_PRR_names }
+  - Edit: other_children_PRR
+    button: |
+      **I want custody of other children, too.**:
+      ${ word(yesno(other_children_PRR)) }
+  - Edit: request_supervised_contact
+    button: |
+      **Order Defendant’s contact with the child(ren) supervised.**:
+      ${ word(yesno(request_supervised_contact)) }
+  - Edit: supervisor1_name
+    button: |
+      **Supervised by:**:
+      ${ supervisor1_name }
+  - Edit: supervisor1_location
+    button: |
+      **At this location:**:
+      ${ supervisor1_location }
+  - Edit: request_children_exchange
+    button: |
+      **Order exchanges of the child(ren) for parent child contact take place at a certain location.**:
+      ${ word(yesno(request_children_exchange)) }
+  - Edit: supervisor2_location
+    button: |
+      **At this location:**:
+      ${ supervisor2_location }
+  - Edit: supervisor2_name
+    button: |
+      **Supervised by:**:
+      ${ supervisor2_name }
+  - Edit: request_no_drug_or_alcohol
+    button: |
+      **Order Defendant not to take any regulated drug unless it is prescribed to Defendant by a physician or drink alcohol for at least 8 hours prior to a scheduled contact or during contact with the child(ren) and that Petitioner may cancel scheduled contact if Defendant appears to be under the influence of intoxicating substances (drugs/alcohol).**:
+      ${ word(yesno(request_no_drug_or_alcohol)) }
+  - Edit: request_no_punish
+    button: |
+      **Order Defendant not physically punish the child(ren) in any way.**:
+      ${ word(yesno(request_no_punish)) }
+  - Edit: request_child_support
+    button: |
+      **Order Defendant to pay temporary child support for the child(ren).**:
+      ${ word(yesno(request_child_support)) }
+  - Edit: request_other_description
+    button: |
+      **Describe what you want.**:
+      ${ request_other_description }
+  - Edit: request_other
+    button: |
+      **Request something else.**:
+      ${ word(yesno(request_other)) }
+  - Edit: request_all_emergency
+    button: |
+      **The Petitioner requests on an emergency basis the same relief as requested above, to the extent available.**:
+      ${ word(yesno(request_all_emergency)) }
+  - Edit: signature_date
+    button: |
+      **Date of signature**:
+      ${ signature_date }
+---
+continue button field: children.revisit
+question: |
+  Edit children
+subquestion: |
+  ${ children.table }
+
+  ${ children.add_action() }
+---
+table: children.table
+rows: children
+columns:
+  - Name: |
+      row_item.name.full() if defined("row_item.name.first") else ""
+  - Birthdate: |
+      row_item.birthdate if defined("row_item.birthdate") else ""
+edit:
+  - name.first
+  - birthdate
+confirm: True
+
+---
+continue button field: other_parties.revisit
+question: |
+  Edit other_parties
+subquestion: |
+  ${ other_parties.table }
+
+  ${ other_parties.add_action() }
+---
+table: other_parties.table
+rows: other_parties
+columns:
+  - Name: |
+      row_item.name.full() if defined("row_item.name.first") else ""
+  - Birthdate: |
+      row_item.birthdate if defined("row_item.birthdate") else ""
+  - Address: |
+      row_item.address.block() if defined("row_item.address.city") else ""
+edit:
+  - name.first
+  - birthdate
+  - address.city
+confirm: True
+
+---
+continue button field: users.revisit
+question: |
+  Edit users
+subquestion: |
+  ${ users.table }
+
+  ${ users.add_action() }
+---
+table: users.table
+rows: users
+columns:
+  - Name: |
+      row_item.name.full() if defined("row_item.name.first") else ""
+  - Birthdate: |
+      row_item.birthdate if defined("row_item.birthdate") else ""
+  - Signature: |
+      row_item.signature if defined("row_item.signature") else ""
+edit:
+  - name.first
+  - birthdate
+  - signature
+confirm: True
+
+---
+id: download rfacomplaintonbehalfofminor
+event: rfacomplaintonbehalfofminor_download
+question: |
+  All done
+subquestion: |
+  Thank you ${users}. Your form is ready to download and deliver.
+  
+  View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
+
+  ${ action_button_html(url_action('review_rfacomplaintonbehalfofminor'), label='Edit answers', color='info') }
+  
+  
+  ${ al_user_bundle.download_list_html() }
+  
+
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=False) }
+
+progress: 100
+---
+# ALDocument objects specify the metadata for each template
+objects:
+  - rfacomplaintonbehalfofminor_Post_interview_instructions: ALDocument.using(title="Instructions", filename="rfacomplaintonbehalfofminor_next_steps.docx", enabled=True, has_addendum=False)
+  - rfacomplaintonbehalfofminor_attachment: ALDocument.using(title="Relief from Abuse order on behalf of a child or children", filename="rfacomplaintonbehalfofminor", enabled=True, has_addendum=False, )
+---
+# Bundles group the ALDocuments into separate downloads, such as for court and for the user
+objects:
+  - al_user_bundle: ALDocumentBundle.using(elements=[rfacomplaintonbehalfofminor_Post_interview_instructions, rfacomplaintonbehalfofminor_attachment], filename="rfacomplaintonbehalfofminor", title="All forms to download for your records", enabled=True)
+  - al_court_bundle: ALDocumentBundle.using(elements=[rfacomplaintonbehalfofminor_attachment],  filename="rfacomplaintonbehalfofminor", title="All forms to deliver to court", enabled=True)
+---
+# Each attachment defines a key in an ALDocument. We use `i` as the placeholder here so the same template is 
+# used for "preview" and "final" keys, and logic in the template checks the value of 
+# `i` to show or hide the user's signature
+attachment:
+  name: Post-interview-Instructions
+  filename: rfacomplaintonbehalfofminor_next_steps
+  docx template file: rfacomplaintonbehalfofminor_next_steps.docx
+  variable name: rfacomplaintonbehalfofminor_Post_interview_instructions[i]
+  skip undefined: True
+  tagged pdf: True
+---
+attachment:
+  name: rfacomplaintonbehalfofminor
+  filename: rfacomplaintonbehalfofminor
+  variable name: rfacomplaintonbehalfofminor_attachment[i]
+  skip undefined: True
+  pdf template file: rfacomplaintonbehalfofminor.pdf
+  fields:
+      - "trial_court_county": ${ trial_court.address.county }
+      - "docket_number": ${ docket_number }
+      - "children1_name": ${ children[0] }
+      - "children1_name": ${ children[0] }
+      - "children1_name": ${ children[0] }
+      - "children1_birthdate": ${ children[0].birthdate.format() }
+      - "children1_birthdate": ${ children[0].birthdate.format() }
+      - "children1_birthdate": ${ children[0].birthdate.format() }
+      - "other_parties1_name": ${ other_parties[0] }
+      - "other_parties1_name": ${ other_parties[0] }
+      - "other_parties1_birthdate": ${ other_parties[0].birthdate.format() }
+      - "users1_name": ${ users[0] }
+      - "users1_birthdate": ${ users[0].birthdate.format() }
+      - "users1_relationship_to_children1": ${ users1_relationship_to_children1 }
+      - "other_parties1_address_address": ${ other_parties[0].address.address }
+      - "other_parties1_address_state": ${ other_parties[0].address.state }
+      - "other_parties1_address_zip": ${ other_parties[0].address.zip }
+      - "other_parties1_address_city": ${ other_parties[0].address.city }
+      - "parent_guardian": ${ parent_guardian }
+      - "family_member_description": ${ family_member_description }
+      - "family_member": ${ family_member }
+      - "live_together": ${ live_together }
+      - "dating": ${ dating }
+      - "other_relationship_description": ${ other_relationship_description }
+      - "other_relationship": ${ other_relationship }
+      - "existing_order_divorce_yes": ${ existing_order_divorce }
+      - "existing_order_divorce_no": ${ not existing_order_divorce }
+      - "dissolution_yes": ${ dissolution }
+      - "dissolution_no": ${ not dissolution }
+      - "existing_order_RFA_yes": ${ existing_order_RFA }
+      - "existing_order_RFA_no": ${ not existing_order_RFA }
+      - "criminal_proceeding_yes": ${ criminal_proceeding }
+      - "criminal_proceeding_no": ${ not criminal_proceeding }
+      - "parentage_order_yes": ${ parentage_order }
+      - "parentage_order_no": ${ not parentage_order }
+      - "guardianship_order_yes": ${ guardianship_order }
+      - "guardianship_order_no": ${ not guardianship_order }
+      - "child_support_order_yes": ${ child_support_order }
+      - "child_support_order_no": ${ not child_support_order }
+      - "juvenile_order_yes": ${ juvenile_order }
+      - "juvenile_order_no": ${ not juvenile_order }
+      - "existing_order_state": ${ existing_order_state }
+      - "existing_order_county": ${ existing_order_county }
+      - "existing_order_users_attorney": ${ existing_order_users_attorney }
+      - "existing_order_OP_attorney": ${ existing_order_OP_attorney }
+      - "recent_incident_date": ${ recent_incident_date.format() }
+      - "recent_incident_yes": ${ recent_incident_yes }
+      - "recent_incident_abused": ${ recent_incident_abused }
+      - "other_parties1_parent_abuse": ${ other_parties1_parent_abuse }
+      - "recent_incident_stalked_children": ${ recent_incident_stalked_children }
+      - "recent_incident_assault": ${ recent_incident_assault }
+      - "recent_incident_harm": ${ recent_incident_harm }
+      - "recent_incident_fear": ${ recent_incident_fear }
+      - "Is there an existing order or a pending court proceeding involving you the Defendant andor the children in this": ${ existing_order }
+      - "Civil Union Dissolution": ${ Civil_Union_Dissolution }
+      - "danger_more_abuse_children": ${ danger_more_abuse_children }
+      - "danger_more_abuse_other_children": ${ danger_more_abuse_other_children }
+      - "danger_more_abuse": ${ danger_more_abuse }
+      - "children1_relationship_users1": ${ children1_relationship_users1 }
+      - "children1_relationship_users1": ${ children1_relationship_users1 }
+      - "children1_relationship_OP": ${ children1_relationship_OP }
+      - "children1_relationship_OP": ${ children1_relationship_OP }
+      - "children2_name": ${ children[1] }
+      - "children2_name": ${ children[1] }
+      - "children2_birthdate": ${ children[1].birthdate.format() }
+      - "children2_birthdate": ${ children[1].birthdate.format() }
+      - "children2_relationship_users1": ${ children2_relationship_users1 }
+      - "children2_relationship_users1": ${ children2_relationship_users1 }
+      - "children2_relationship_OP": ${ children2_relationship_OP }
+      - "children2_relationship_OP": ${ children2_relationship_OP }
+      - "children3_name": ${ children[2] }
+      - "children3_name": ${ children[2] }
+      - "children3_birthdate": ${ children[2].birthdate.format() }
+      - "children3_birthdate": ${ children[2].birthdate.format() }
+      - "children3_relationship_users1": ${ children3_relationship_users1 }
+      - "children3_relationship_users1": ${ children3_relationship_users1 }
+      - "children3_relationship_OP": ${ children3_relationship_OP }
+      - "children3_relationship_OP": ${ children3_relationship_OP }
+      - "used_firearm": ${ used_firearm }
+      - "incarcerated": ${ incarcerated }
+      - "children1_no_shelter": ${ children1_no_shelter }
+      - "residence_shared_address": ${ residence_shared_address }
+      - "residence_owned": ${ residence_owned }
+      - "residence_rented": ${ residence_rented }
+      - "residence_of_users1": ${ residence_of_users1 }
+      - "residence_of_both": ${ residence_of_both }
+      - "residence_of_other": ${ residence_of_other }
+      - "residence_of_OP": ${ residence_of_OP }
+      - "request_not_abuse_children": ${ request_not_abuse_children }
+      - "request_no_stalking_assault": ${ request_no_stalking_assault }
+      - "request_leave": ${ request_leave }
+      - "request_no_firearms": ${ request_no_firearms }
+      - "request_surrender_firearms": ${ request_surrender_firearms }
+      - "request_no_pet_harm": ${ request_no_pet_harm }
+      - "request_control_of_pet": ${ request_control_of_pet }
+      - "request_stay_away_feet": ${ request_stay_away_feet }
+      - "request_stay_away": ${ request_stay_away }
+      - "request_no_contact_children": ${ request_no_contact_children }
+      - "request_temp_PRR": ${ request_temp_PRR }
+      - "other_children_PRR_names": ${ other_children_PRR_names }
+      - "other_children_PRR": ${ other_children_PRR }
+      - "request_supervised_contact": ${ request_supervised_contact }
+      - "supervisor1_name": ${ supervisor1_name }
+      - "supervisor1_location": ${ supervisor1_location }
+      - "request_children_exchange": ${ request_children_exchange }
+      - "supervisor2_location": ${ supervisor2_location }
+      - "supervisor2_name": ${ supervisor2_name }
+      - "request_no_drug_or_alcohol": ${ request_no_drug_or_alcohol }
+      - "request_no_punish": ${ request_no_punish }
+      - "request_child_support": ${ request_child_support }
+      - "request_other_description": ${ request_other_description }
+      - "request_other": ${ request_other }
+      - "request_all_emergency": ${ request_all_emergency }
+      - "signature_date": ${ signature_date }
+      - "users1_signature": ${ users[0].signature_if_final(i) }
+
+
+
