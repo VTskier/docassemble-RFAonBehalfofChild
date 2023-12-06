@@ -1,6 +1,5 @@
 comment: |
-  Start again at id: OBO CHILD what you want in the order
-  I think I got the info gathering for kids to work (not the custody question yet but got birthdate and relationships)
+  Look at resulting PDF and get data into fields
   
   This interview includes the questions specific to RFA on behalf of child. 
   I built this by running the OBO Complaint through the Weaver. Need to add Affidavit, too.
@@ -65,7 +64,7 @@ id: interview_order_rfa_obo_minor
 code: |
   # Set the allowed courts for this interview
   allowed_courts = ['Family Court']
-  nav.set_section("review_rfacomplaintonbehalfofminor")
+  #nav.set_section("review_rfacomplaintonbehalfofminor")
   user_role = "plaintiff"
   user_ask_role = "plaintiff"
   children.gather()
@@ -92,6 +91,7 @@ code: |
     trial_court.address.address
     docket_number
     set_progress(90)
+  RFA_complaint_on_behalf_of_minor_preview_question
   signature_date
   al_form_requires_digital_signature = False
   basic_questions_signature_flow    
@@ -550,13 +550,13 @@ fields:
   - "I request on an emergency basis the same relief as requested above, to the extent available.": request_all_emergency
     datatype: yesnoradio
 ---
-id: preview rfacomplaintonbehalfofminor
+id: preview RFA_complaint_on_behalf_of_minor
 question: |
   Preview your form before you sign it
 subquestion: |
   Here is a preview of the form you will sign on the next page.   
   
-  ${ al_court_bundle.as_pdf(key='preview') }
+  ${ al_user_bundle.as_pdf(key='preview') }
 
   Click the image to open it in a new tab. Click the "Edit answers" button
   to edit your answers.
@@ -564,7 +564,7 @@ subquestion: |
   ${ action_button_html(url_action('review_rfacomplaintonbehalfofminor'), label='Edit answers', color='info') }
   
   Remember to come back to this window to continue and sign your form.
-continue button field: rfacomplaintonbehalfofminor_preview_question    
+continue button field: RFA_complaint_on_behalf_of_minor_preview_question    
 ---
 code: |
   signature_fields = ['users[0].signature']
@@ -999,29 +999,29 @@ progress: 100
 ---
 # ALDocument objects specify the metadata for each template
 objects:
-  - rfacomplaintonbehalfofminor_Post_interview_instructions: ALDocument.using(title="Instructions", filename="rfacomplaintonbehalfofminor_next_steps.docx", enabled=True, has_addendum=False)
-  - rfacomplaintonbehalfofminor_attachment: ALDocument.using(title="Relief from Abuse order on behalf of a child or children", filename="rfacomplaintonbehalfofminor", enabled=True, has_addendum=False, )
+  - RFAcomplaintonbehalfofminor_Post_interview_instructions: ALDocument.using(title="Instructions", filename="rfacomplaintonbehalfofminor_next_steps.docx", enabled=True, has_addendum=False)
+  - RFAcomplaintonbehalfofminor_attachment: ALDocument.using(title="Relief from Abuse order on behalf of a child or children", filename="5_RFA_complaint_on_behalf_of_minor", enabled=True, has_addendum=False, )
 ---
 # Bundles group the ALDocuments into separate downloads, such as for court and for the user
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[rfacomplaintonbehalfofminor_Post_interview_instructions, rfacomplaintonbehalfofminor_attachment], filename="rfacomplaintonbehalfofminor", title="All forms to download for your records", enabled=True)
-  - al_court_bundle: ALDocumentBundle.using(elements=[rfacomplaintonbehalfofminor_attachment],  filename="rfacomplaintonbehalfofminor", title="All forms to deliver to court", enabled=True)
+  - al_user_bundle: ALDocumentBundle.using(elements=[RFAcomplaintonbehalfofminor_Post_interview_instructions, RFAcomplaintonbehalfofminor_attachment], filename="5_RFA_complaint_on_behalf_of_minor", title="All forms to download for your records", enabled=True)
+  #- al_court_bundle: ALDocumentBundle.using(elements=[5_RFA_complaint_on_behalf_of_minor],  filename="5_RFA_complaint_on_behalf_of_minor", title="All forms to deliver to court", enabled=True)
 ---
 # Each attachment defines a key in an ALDocument. We use `i` as the placeholder here so the same template is 
 # used for "preview" and "final" keys, and logic in the template checks the value of 
 # `i` to show or hide the user's signature
 attachment:
   name: Post-interview-Instructions
-  filename: rfacomplaintonbehalfofminor_next_steps
+  filename: RFAcomplaintonbehalfofminor_next_steps
   docx template file: rfacomplaintonbehalfofminor_next_steps.docx
-  variable name: rfacomplaintonbehalfofminor_Post_interview_instructions[i]
+  variable name: RFAcomplaintonbehalfofminor_Post_interview_instructions[i]
   skip undefined: True
   tagged pdf: True
 ---
 attachment:
-  name: rfacomplaintonbehalfofminor
-  filename: rfacomplaintonbehalfofminor
-  variable name: rfacomplaintonbehalfofminor_attachment[i]
+  name: 5 RFA_complaint_on_behalf_of_minor
+  filename: 5_RFA_complaint_on_behalf_of_minor
+  variable name: RFAcomplaintonbehalfofminor_attachment[i]
   skip undefined: True
   pdf template file: 5_RFA-complaint-on-behalf-of-minor.pdf
   fields:
