@@ -1,4 +1,7 @@
 comment: |
+  Start again at id: OBO CHILD what you want in the order
+  I think I got the info gathering for kids to work (not the custody question yet but got birthdate and relationships)
+  
   This interview includes the questions specific to RFA on behalf of child. 
   I built this by running the OBO Complaint through the Weaver. Need to add Affidavit, too.
   Try to include OBO CHILD in the id name if the question is tailored for that situation
@@ -80,7 +83,9 @@ code: |
     parent_guardian
     set_progress(12)
     serious_incident_date
-    danger_more_abuse_children
+    danger_more_abuse
+    if danger_more_abuse:
+      get_kids_in_danger
     request_not_abuse_children
     request_all_emergency
     existing_order
@@ -377,34 +382,78 @@ id: OBO CHILD danger of more abuse
 question: |
   Danger of more abuse
 fields:
-  - "Is there danger of more abuse?": danger_more_abuse
-    datatype: yesno
-  - "There is danger of further abuse to ${ children[0] }": danger_more_abuse_children
-    datatype: yesno
-    show if: danger_more_abuse
-  - "There is danger of further abuse to the other child(ren) in the household": danger_more_abuse_other_children
-    datatype: yesno
-    show if: danger_more_abuse
+  - "Is there danger of more abuse to the child or children?": danger_more_abuse
+    datatype: yesnoradio
+#  - "There is danger of further abuse to ${ children[0] }": children[0].in_danger
+#    datatype: yesno
+#    show if: danger_more_abuse
+#  - "There is danger of further abuse to the other children in the household": danger_more_abuse_other_children
+#    datatype: yesno
+#    js hide if: |
+#      val("danger_more_abuse['False']") || val("children.target_number['1']")
+
+---
+code: |
+  for child in children: 
+    child.in_danger
+    child.relationship_users1
+    child.relationship_OP
+  get_kids_in_danger = True
+---
+id: childrens custody relationships
+generic object: Individual     
+question: |
+  Custody of ${x.name.first}
+fields:
+  - I want temporary custody of ${x.name.first}: x.custody_wanted
+    datatype: yesnoradio
+  - "In 1 or 2 words, what is ${x.name.first}'s relationship to you?": x.relationship_users1
+    maxlength: 19
+    show if: x.custody_wanted
+  - "What is ${x.name.first}'s relationship to the defendant?": x.relationship_OP
+    maxlength: 21
+    show if: x.custody_wanted
+---
+id: children in danger relationships
+generic object: Individual     
+question: |
+  About ${x.name.first}
+fields:
+  - Is ${x.name.first} in danger of more abuse?: x.in_danger
+    datatype: yesnoradio
+  - "In 1 or 2 words, what is ${x.name.first}'s relationship to you?": x.relationship_users1
+    maxlength: 19
+    show if: x.in_danger
+  - "What is ${x.name.first}'s relationship to the defendant?": x.relationship_OP
+    maxlength: 21
+    show if: x.in_danger
     
-    
+---
     
 
-  - "Children1 relationship to users1": children1_relationship_users1
-    maxlength: 19
-  - "Children1 relationship to OP": children1_relationship_OP
-    maxlength: 21
-  - "Children2 relationship to users1": children2_relationship_users1
-    maxlength: 19
-  - "Children2 relationship to OP": children2_relationship_OP
-    maxlength: 21
-  - "Children3 relationship users1": children3_relationship_users1
-    maxlength: 19
-  - "Children3 relationship to OP": children3_relationship_OP
-    maxlength: 21
+#  - "Children1 relationship to users1": children1_relationship_users1
+#    maxlength: 19
+#  - "Children1 relationship to OP": children1_relationship_OP
+#    maxlength: 21
+#  - "Children2 relationship to users1": children2_relationship_users1
+#    maxlength: 19
+#  - "Children2 relationship to OP": children2_relationship_OP
+#    maxlength: 21
+#  - "Children3 relationship users1": children3_relationship_users1
+#    maxlength: 19
+#  - "Children3 relationship to OP": children3_relationship_OP
+#    maxlength: 21
+---    
+id: more about what happened    
+question: |
+  More about what the defendant did
+fields:    
   - "Defendant has used, displayed, or threatened to use a firearm against the child(ren) or against a family member.": used_firearm
     datatype: yesno
   - "Defendant is incarcerated and has been convicted of one of the crimes specified in 15 V.S.A. §1103(c)(1)(B).": incarcerated
     datatype: yesno
+    
+    
   - "The child(ren) will be forced to leave their current home and will be without shelter unless Defendant is ordered to leave the residence.": children1_no_shelter
     datatype: yesno
   - "The home is located at": residence_shared_address
@@ -507,6 +556,8 @@ code: |
   # a different address than the user's
   [user.address.address for user in users.complete_elements()]
   addresses_to_search = [user.address for user in users.complete_elements()]
+---
+#####Review screen#####
 ---
 id: OBO CHILD rfacomplaintonbehalfofminor review screen
 event: review_rfacomplaintonbehalfofminor
@@ -658,10 +709,10 @@ review:
       **Placed the child/children in fear of imminent serious physical harm.**:
       ${ word(yesno(serious_incident_fear)) }
 
-  - Edit: danger_more_abuse_children
+  - Edit: children[0].in_danger
     button: |
-      **There is danger of further abuse to the child/children**:
-      ${ word(yesno(danger_more_abuse_children)) }
+      **There is danger of further abuse to ${ children[0] }**:
+      ${ word(yesno(children[0].in_danger)) }
   - Edit: danger_more_abuse_other_children
     button: |
       **There is danger of further abuse to other child(ren) in the household named below.**:
@@ -1010,9 +1061,14 @@ attachment:
       - "serious_incident_fear": ${serious_incident_fear }
       - "Is there an existing order or a pending court proceeding involving you the Defendant andor the children in this": ${ existing_order }
       - "Civil Union Dissolution": ${ Civil_Union_Dissolution }
-      - "danger_more_abuse_children": ${ danger_more_abuse_children }
-      - "danger_more_abuse_other_children": ${ danger_more_abuse_other_children }
       - "danger_more_abuse": ${ danger_more_abuse }
+      - "danger_more_abuse_children": ${ children[0].in_danger }
+      - "danger_more_abuse_other_children": |
+          % if children[1].in_danger or children[2].in_danger:
+          **Yes**
+          % else:
+          **No**
+          % endif
       - "children1_relationship_users1": ${ children1_relationship_users1 }
       - "children1_relationship_users1": ${ children1_relationship_users1 }
       - "children1_relationship_OP": ${ children1_relationship_OP }
