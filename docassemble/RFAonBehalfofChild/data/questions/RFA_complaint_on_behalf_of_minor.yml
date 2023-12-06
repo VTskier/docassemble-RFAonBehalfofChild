@@ -1,10 +1,10 @@
 comment: |
-  Thin interview includes the questions specific to RFA on behalf of child. 
+  This interview includes the questions specific to RFA on behalf of child. 
   I built this by running the OBO Complaint through the Weaver. Need to add Affidavit, too.
   Try to include OBO CHILD in the id name if the question is tailored for that situation
   Get the OBO questions working and OBO review working and the Complaint PDF filled in
   Then pull in the affidavit
-  Do these petitioners also do the other two forms?
+  It looks like these petitioners also do the other two forms
   
 
 
@@ -248,12 +248,16 @@ validation code: |
 ---
 id: OBO CHILD how children related to you and defendant
 question: |
-  What is child's or children's relationship to you and defendant
+  Relationship to the child or children
 fields:
-  - "In a word or two, what is **your relationship** to the child or children?": users1_relationship_to_children1
+  - note: |
+      **Your relationship to them**
+  - "In a word or two, what is your relationship to the child or children?": users1_relationship_to_children1
     maxlength: 22
   - note: |
-      Now choose the best description of the child's or children's **relationship to the defendant**. The defendat" is theperson who is the abuser.
+      **Defendant's relationship to them**
+      
+      Now choose the best description of the defendant's relationship to the child or children. The "defendant" is the person who is abusing the child/children.
     
       Choose at least one.
   
@@ -280,7 +284,7 @@ validation code: |
 ---
 id: initial_screening_questions_3
 question: |
-  See if this interview is right for your situation
+  See if this interview is right for your situation - EDIT THIS ON MAIN RFA FORM to say Who needs protection
 fields:
   - "Who needs protection from abuse?": who_needs_protection
     input type: radio
@@ -348,29 +352,43 @@ fields:
     maxlength: 14
   - note: |
       If you know the exact date, use this date format mm/dd/yyyy. If you don’t, it’s OK to type something short like “December 20XX.”
-  - "Abused the child named above (physically injured or otherwise treated the child named above in a mannerwhich placed the child’s life, health, development or welfare in jeopardy.)": serious_incident_abused
+      
+      **What did the defendant do to the child or children?**
+      
+      Select all that apply.
+      
+  - "Abused them (physically injured or otherwise treated them in a manner which placed the child’s life, health, development or welfare in jeopardy.)": serious_incident_abused
     datatype: yesno
-  - "Defendant is a parent/legal guardian for the child named above and either (1) inflicted physical punishmentout of anger, or (2) physically punished the child named above in an excessive, unreasonable, or cruel manner.": other_parties1_parent_abuse
+  - "Defendant is a parent or legal guardian and either (1) inflicted physical punishmentout of anger, or (2) physically punished them in an excessive, unreasonable, or cruel manner.": other_parties1_parent_abuse
     datatype: yesno
-  - "Stalked the child named above as defined in 12 V.S.A. §5131(6).": serious_incident_stalked_children
+  - "Stalked them as defined in 12 V.S.A. §5131(6).": serious_incident_stalked_children
     datatype: yesno
-  - "Sexually assaulted or sexually abused the child named above as defined in 15 V.S.A. §5131(5).": serious_incident_assault
+  - "Sexually assaulted or sexually abused them as defined in 15 V.S.A. §5131(5).": serious_incident_assault
     datatype: yesno
-  - "Attempted to cause or caused physical harm to the child named above.": serious_incident_harm
+  - "Attempted to cause or caused physical harm to them.": serious_incident_harm
     datatype: yesno
-  - "Placed the child named above in fear of imminent serious physical harm.": serious_incident_fear
+  - "Placed them in fear of imminent serious physical harm.": serious_incident_fear
     datatype: yesno
+validation code: |
+  if [serious_incident_abused, other_parties1_parent_abuse, serious_incident_stalked_children, serious_incident_assault, serious_incident_harm, serious_incident_fear].count(True) == 0:
+    validation_error("Please select at least one option.")
 ---
 id: OBO CHILD danger of more abuse
 question: |
   Danger of more abuse
 fields:
-  - "There is danger of more abuse": danger_more_abuse
+  - "Is there danger of more abuse?": danger_more_abuse
     datatype: yesno
-  - "There is danger of further abuse to the child/children": danger_more_abuse_children
+  - "There is danger of further abuse to ${ children[0] }": danger_more_abuse_children
     datatype: yesno
-  - "There is danger of further abuse to other child(ren) in the household named below.": danger_more_abuse_other_children
+    show if: danger_more_abuse
+  - "There is danger of further abuse to the other child(ren) in the household": danger_more_abuse_other_children
     datatype: yesno
+    show if: danger_more_abuse
+    
+    
+    
+
   - "Children1 relationship to users1": children1_relationship_users1
     maxlength: 19
   - "Children1 relationship to OP": children1_relationship_OP
@@ -383,7 +401,7 @@ fields:
     maxlength: 19
   - "Children3 relationship to OP": children3_relationship_OP
     maxlength: 21
-  - "Defendant has used, displayed, or threatened to use a firearm against the child(ren) named above or against a family member.": used_firearm
+  - "Defendant has used, displayed, or threatened to use a firearm against the child(ren) or against a family member.": used_firearm
     datatype: yesno
   - "Defendant is incarcerated and has been convicted of one of the crimes specified in 15 V.S.A. §1103(c)(1)(B).": incarcerated
     datatype: yesno
@@ -410,7 +428,7 @@ question: |
 fields:
   - "Order Defendant not abuse child(ren) and not interfere with their personal liberty.": request_not_abuse_children
     datatype: yesno
-  - "Order Defendant refrain from stalking or sexually abusing the child(ren) named above.": request_no_stalking_assault
+  - "Order Defendant refrain from stalking or sexually abusing the child(ren).": request_no_stalking_assault
     datatype: yesno
   - "Order Defendant vacate immediately the residence (identified above) and sole possession be awarded to the Petitioner caring for the child(ren).": request_leave
     datatype: yesno
@@ -420,7 +438,7 @@ fields:
     datatype: yesno
   - "Order Defendant refrain from cruelly treating the pet(s) of the parties or the pet(s) of the child(ren).": request_no_pet_harm
     datatype: yesno
-  - "Award temporary possession and control of any pet(s) owned by the parties or by the child(ren) named above to the Petitioner.": request_control_of_pet
+  - "Award temporary possession and control of any pet(s) owned by the parties or by the child(ren) to the Petitioner.": request_control_of_pet
     datatype: yesno
   - "Order Defendant to stay away from the child(ren).": request_stay_away_feet
     maxlength: 7
@@ -617,27 +635,27 @@ review:
       ${ word(yesno(serious_incident_yes)) }
   - Edit: serious_incident_abused
     button: |
-      **Abused the child named above (physically injured or otherwise treated the child named above in a mannerwhich placed the child’s life, health, development or welfare in jeopardy.)**:
+      **Abused the child (physically injured or otherwise treated the child in a mannerwhich placed the child’s life, health, development or welfare in jeopardy.)**:
       ${ word(yesno(serious_incident_abused)) }
   - Edit: other_parties1_parent_abuse
     button: |
-      **Defendant is a parent/legal guardian for the child named above and either (1) inflicted physical punishmentout of anger, or (2) physically punished the child named above in an excessive, unreasonable, or cruel manner.**:
+      **Defendant is a parent/legal guardian and either (1) inflicted physical punishmentout of anger, or (2) physically punished the child in an excessive, unreasonable, or cruel manner.**:
       ${ word(yesno(other_parties1_parent_abuse)) }
   - Edit: serious_incident_stalked_children
     button: |
-      **Stalked the child named above as defined in 12 V.S.A. §5131(6).**:
+      **Stalked the child/children as defined in 12 V.S.A. §5131(6).**:
       ${ word(yesno(serious_incident_stalked_children)) }
   - Edit: serious_incident_assault
     button: |
-      **Sexually assaulted or sexually abused the child named above as defined in 15 V.S.A. §5131(5).**:
+      **Sexually assaulted or sexually abused the child/children as defined in 15 V.S.A. §5131(5).**:
       ${ word(yesno(serious_incident_assault)) }
   - Edit: serious_incident_harm
     button: |
-      **Attempted to cause or caused physical harm to the child named above.**:
+      **Attempted to cause or caused physical harm to the child/children.**:
       ${ word(yesno(serious_incident_harm)) }
   - Edit: serious_incident_fear
     button: |
-      **Placed the child named above in fear of imminent serious physical harm.**:
+      **Placed the child/children in fear of imminent serious physical harm.**:
       ${ word(yesno(serious_incident_fear)) }
 
   - Edit: danger_more_abuse_children
@@ -678,7 +696,7 @@ review:
       ${ children3_relationship_OP }
   - Edit: used_firearm
     button: |
-      **Defendant has used, displayed, or threatened to use a firearm against the child(ren) named above or against a family member.**:
+      **Defendant has used, displayed, or threatened to use a firearm against the child(ren) or against a family member.**:
       ${ word(yesno(used_firearm)) }
   - Edit: incarcerated
     button: |
@@ -722,7 +740,7 @@ review:
       ${ word(yesno(request_not_abuse_children)) }
   - Edit: request_no_stalking_assault
     button: |
-      **Order Defendant refrain from stalking or sexually abusing the child(ren) named above.**:
+      **Order Defendant refrain from stalking or sexually abusing the child(ren).**:
       ${ word(yesno(request_no_stalking_assault)) }
   - Edit: request_leave
     button: |
@@ -742,7 +760,7 @@ review:
       ${ word(yesno(request_no_pet_harm)) }
   - Edit: request_control_of_pet
     button: |
-      **Award temporary possession and control of any pet(s) owned by the parties or by the child(ren) named above to the Petitioner.**:
+      **Award temporary possession and control of any pet(s) owned by the parties or by the child(ren) to the Petitioner.**:
       ${ word(yesno(request_control_of_pet)) }
   - Edit: request_stay_away_feet
     button: |
