@@ -136,7 +136,7 @@ sets:
 question: |
   Name of defendant
 fields:
-  - note: The "defendant" is the person who is abusing you. EDIT THIS ON MAIN INTERVIEW TO -- The person who is abusing you or the children is called the "defendant". So we can use for both situations.
+  - note: The "defendant" is the person who is abusing you. EDIT THIS ON MAIN INTERVIEW TO -- The person who is abusing you or the children is called the "defendant".
   - First Name: other_parties[0].name.first
   - Middle Name: other_parties[0].name.middle
     required: False
@@ -235,7 +235,7 @@ code: |
 id: how many children
 question: |
   % if al_form_type in ['starts_case','existing_case','appeal']:
-  Are any children involved in this case? 
+  Are any children involved in this abuse case? 
   % else:
   Are any children involved in this matter?
   % endif  
@@ -444,17 +444,16 @@ fields:
 #  - "Children3 relationship to OP": children3_relationship_OP
 #    maxlength: 21
 ---    
-id: more about what happened    
+id: OBO more about the situation    
 question: |
-  More about what the defendant did
+  More about the situation
 fields:    
-  - "Defendant has used, displayed, or threatened to use a firearm against the child(ren) or against a family member.": used_firearm
-    datatype: yesno
+
   - "Defendant is incarcerated and has been convicted of one of the crimes specified in 15 V.S.A. §1103(c)(1)(B).": incarcerated
     datatype: yesno
-    
-    
-  - "The child(ren) will be forced to leave their current home and will be without shelter unless Defendant is ordered to leave the residence.": children1_no_shelter
+  - "Defendant has used, displayed, or threatened to use a firearm against the children or against a family member.": used_firearm
+    datatype: yesno
+  - "The child or children will be forced to leave their current home and will be without shelter unless defendant is ordered to leave the residence.  IF YES, JUMP TO REGULAR RFA QUESTIONS ABOUT SHARED HOME": children1_no_shelter
     datatype: yesno
   - "The home is located at": residence_shared_address
     maxlength: 25
@@ -471,65 +470,85 @@ fields:
   - "Residence of OP": residence_of_OP
     datatype: yesno
 ---
-id: OBO CHILD what you want in the order
+id: OBO CHILD what you want to ask for in the RFA order
 question: |
-  What you want in the order
+  What you want to ask for in the RFA order
+subquestion: |
+  This is a list of things that you can ask the court for. If approved, they will be part of the Relief from Abuse order.
+  
+  **Choose all that apply to you.** 
+
+  I want the court to:
+  
 fields:
-  - "Order Defendant not abuse child(ren) and not interfere with their personal liberty.": request_not_abuse_children
+  - "Order defendant to not abuse the children and not interfere with their personal liberty.": request_not_abuse_children
     datatype: yesno
-  - "Order Defendant refrain from stalking or sexually abusing the child(ren).": request_no_stalking_assault
+  - "Order defendant to refrain (stop) from stalking or sexually abusing the children.": request_no_stalking_assault
     datatype: yesno
-  - "Order Defendant vacate immediately the residence (identified above) and sole possession be awarded to the Petitioner caring for the child(ren).": request_leave
+  - "Order defendant to vacate (leave) the residence immediately and award sole possession of the residence to me (the petitioner caring for the children.)": request_leave
     datatype: yesno
-  - "Order Defendant not to possess or purchase firearms for the duration of the order.": request_no_firearms
+  - "Order defendant not to possess or buy firearms for the duration of the order.": request_no_firearms
     datatype: yesno
-  - "Order Defendant to surrender immediately all firearms under Defendant’s ownership, possession, or control to law enforcement.": request_surrender_firearms
+  - "Order defendant to surrender immediately all firearms (guns) under defendant’s ownership, possession, or control to law enforcement.": request_surrender_firearms
     datatype: yesno
-  - "Order Defendant refrain from cruelly treating the pet(s) of the parties or the pet(s) of the child(ren).": request_no_pet_harm
+  - "Order defendant to refrain from (stop) cruelly treating the pets of the parties or the pets of the children.": request_no_pet_harm
     datatype: yesno
-  - "Award temporary possession and control of any pet(s) owned by the parties or by the child(ren) to the Petitioner.": request_control_of_pet
+  - "Award temporary possession and control of any pets owned by the parties or by the children to me (the petitioner).": request_control_of_pet
     datatype: yesno
-  - "Order Defendant to stay away from the child(ren).": request_stay_away_feet
-    maxlength: 7
-  - "This many feet:": request_stay_away
+  - "Order defendant to stay away from the children.": request_stay_away
     datatype: yesno
-  - "Order Defendant to refrain from contacting the minor child(ren) in any way.": request_no_contact_children
+  - "How many feet away? (300 feet is the standard stay-away order)": request_stay_away_feet
+    maxlength: 6
+    show if: request_stay_away
+  - "Order defendant to refrain from contacting the minor children in any way.": request_no_contact_children
     datatype: yesno
-  - "Award the Petitioner temporary custody (Parental Right and Responsibilities) for the child(ren) (Child(ren) of the Petitioner and Defendant).": request_temp_PRR
+  - "Award me (the petitioner) temporary custody (Parental Right and Responsibilities) of the children.) (Children of you and the defendant.)": request_temp_PRR
     datatype: yesno
-  - "Names of other child/ren I want custody of.": other_children_PRR_names
-    maxlength: 68
+  - note: If you choose custody, we will ask for the names of the children on the next screen.
+    show if: request_temp_PRR
   - "I want custody of other children, too.": other_children_PRR
     datatype: yesno
-  - "Order Defendant’s contact with the child(ren) supervised.": request_supervised_contact
+    show if: request_temp_PRR
+  - "Names of other children I want custody of.": other_children_PRR_names
+    maxlength: 68
+    show if: other_children_PRR
+  - "Order defendant’s contact with the children to be supervised.": request_supervised_contact
     datatype: yesno
-  - "Supervised by:": supervisor1_name
+  - "Supervised by this person:": supervisor1_name
     maxlength: 13
+    show if: request_supervised_contact
   - "At this location:": supervisor1_location
     maxlength: 27
-  - "Order exchanges of the child(ren) for parent child contact take place at a certain location.": request_children_exchange
+    show if: request_supervised_contact
+  - "Order exchanges of the children for parent-child contact take place at a certain location.": request_children_exchange
     datatype: yesno
   - "At this location:": supervisor2_location
     maxlength: 26
-  - "Supervised by:": supervisor2_name
+    show if: request_children_exchange
+  - "Supervised by this person:": supervisor2_name
     maxlength: 21
-  - "Order Defendant not to take any regulated drug unless it is prescribed to Defendant by a physician or drink alcohol for at least 8 hours prior to a scheduled contact or during contact with the child(ren) and that Petitioner may cancel scheduled contact if Defendant appears to be under the influence of intoxicating substances (drugs/alcohol).": request_no_drug_or_alcohol
+    show if: request_children_exchange
+  - "Order defendant to not take any regulated drug unless it is prescribed to defendant by a physician or drink alcohol for at least 8 hours prior to a scheduled contact or during contact with the children and that petitioner may cancel scheduled contact if defendant appears to be under the influence of intoxicating substances (drugs/alcohol).": request_no_drug_or_alcohol
     datatype: yesno
-  - "Order Defendant not physically punish the child(ren) in any way.": request_no_punish
+  - "Order defendant to not physically punish the children in any way.": request_no_punish
     datatype: yesno
-  - "Order Defendant to pay temporary child support for the child(ren).": request_child_support
+  - "Order defendant to pay temporary child support for the children.": request_child_support
     datatype: yesno
-  - "Describe what you want.": request_other_description
-    maxlength: 77
-  - "Request something else.": request_other
+  - "I want to request something else.": request_other
     datatype: yesno
----
+  - "Describe what you want. Start with a phrase like 'Order the defendant to ...'": request_other_description
+    maxlength: 80
+    show if: request_other
+    hint: Order the defendant to ...
+---   
 id: Emergency order
 question: |
-  Emergency order
+  Asking for your order to go into effect right away
+subquestion: |
+  Do you want all of your requests to be put in place now — in an emergency order? Most people choose **Yes** to get protection as soon as possible.
 fields:
-  - "The Petitioner requests on an emergency basis the same relief as requested above, to the extent available.": request_all_emergency
-    datatype: yesno
+  - "I request on an emergency basis the same relief as requested above, to the extent available.": request_all_emergency
+    datatype: yesnoradio
 ---
 id: preview rfacomplaintonbehalfofminor
 question: |
@@ -715,7 +734,7 @@ review:
       ${ word(yesno(children[0].in_danger)) }
   - Edit: danger_more_abuse_other_children
     button: |
-      **There is danger of further abuse to other child(ren) in the household named below.**:
+      **There is danger of further abuse to other children in the household named below.**:
       ${ word(yesno(danger_more_abuse_other_children)) }
   - Edit: danger_more_abuse
     button: |
@@ -1004,7 +1023,7 @@ attachment:
   filename: rfacomplaintonbehalfofminor
   variable name: rfacomplaintonbehalfofminor_attachment[i]
   skip undefined: True
-  pdf template file: rfacomplaintonbehalfofminor.pdf
+  pdf template file: 5_RFA-complaint-on-behalf-of-minor.pdf
   fields:
       - "trial_court_county": ${ trial_court.address.county }
       - "docket_number": ${ docket_number }
