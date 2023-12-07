@@ -604,10 +604,18 @@ review:
       ${ docket_number }
   - Edit: children.revisit
     button: |
-      **Children**
+      **OBO Children**
 
       % for item in children:
-        * ${ item }
+        **${ item }**
+        
+        - Birthdate: ${ item.birthdate }
+        
+        - Relationship to you: ${ item.relationship_users1 }
+        
+        - Relationship to defendant: ${ item.relationship_OP }
+        
+        
       % endfor
   - Edit: other_parties.revisit
     button: |
@@ -635,19 +643,23 @@ review:
       OBO Defendant's relationship to the child or children:
       
       % if parent_guardian:
-      **Parent or guardian**
+      - **Parent or guardian**
       % endif
+      
       % if family_member:
-      **Family member: ${ family_member_description }**
+      - **Family member: ${ family_member_description }**
       % endif
+      
       % if live_together:
-      **Person who lives or has lived in the household with the child**
+      - **Person who lives or has lived in the household with the child**
       % endif      
+      
       % if dating:
-      **Child and defendant have or have had a dating relationship**
+      -**Child and defendant have or have had a dating relationship**
       % endif      
+      
       % if other_relationship:
-      **Other relationship: ${ other_relationship_description }**
+      - **Other relationship: ${ other_relationship_description }**
       % endif
   - Edit: serious_incident_date
     button: |
@@ -661,74 +673,47 @@ review:
       The defendant did this:
       
       % if serious_incident_abused:
-      **Abused the child (physically injured or otherwise treated the child in a mannerwhich placed the child’s life, health, development or welfare in jeopardy.)**
+      - **Abused the child (physically injured or otherwise treated the child in a mannerwhich placed the child’s life, health, development or welfare in jeopardy.)**
       % endif
       
       % if other_parties1_parent_abuse:
-      **Defendant is a parent/legal guardian and either (1) inflicted physical punishmentout of anger, or (2) physically punished the child in an excessive, unreasonable, or cruel manner.**
+      - **Defendant is a parent/legal guardian and either (1) inflicted physical punishmentout of anger, or (2) physically punished the child in an excessive, unreasonable, or cruel manner.**
       % endif      
       
       % if serious_incident_stalked_children:
-      **Stalked the child/children as defined in 12 V.S.A. §5131(6).**
+      - **Stalked the child/children as defined in 12 V.S.A. §5131(6).**
       % endif
       
       % if serious_incident_assault:
-      **Sexually assaulted or sexually abused the child/children as defined in 15 V.S.A. §5131(5).**
+      - **Sexually assaulted or sexually abused the child/children as defined in 15 V.S.A. §5131(5).**
       % endif      
       
       % if serious_incident_harm:
-      **Attempted to cause or caused physical harm to the child/children.**
+      - **Attempted to cause or caused physical harm to the child/children.**
       % endif      
       
       % if serious_incident_fear:
-      **Placed the child/children in fear of imminent serious physical harm.**
+      - **Placed the child/children in fear of imminent serious physical harm.**
       % endif            
-      
-
   - Edit: danger_more_abuse
     button: |
       OBO There is danger of more abuse:
       **${ word(yesno(danger_more_abuse)) }**
   - Edit: children[0].in_danger
     button: |
-      OBO There is danger of further abuse to:
+      OBO There is danger of more abuse to:
       % for item in children:
       
         % if item.in_danger:
         - **${ item }**
         % endif
       
-      % endfor   
-  - Edit: danger_more_abuse_other_children
-    button: |
-      OBO There is danger of further abuse to other children in the household named below:
-      ${ word(yesno(danger_more_abuse_other_children)) }
+      % endfor
 
 
-  - Edit: children1_relationship_users1
-    button: |
-      **Children1 relationship to users1**:
-      ${ children1_relationship_users1 }
-  - Edit: children1_relationship_OP
-    button: |
-      **Children1 relationship to OP**:
-      ${ children1_relationship_OP }
-  - Edit: children2_relationship_users1
-    button: |
-      **Children2 relationship to users1**:
-      ${ children2_relationship_users1 }
-  - Edit: children2_relationship_OP
-    button: |
-      **Children2 relationship to OP**:
-      ${ children2_relationship_OP }
-  - Edit: children3_relationship_users1
-    button: |
-      **Children3 relationship users1**:
-      ${ children3_relationship_users1 }
-  - Edit: children3_relationship_OP
-    button: |
-      **Children3 relationship to OP**:
-      ${ children3_relationship_OP }
+
+
+
   - Edit: used_firearm
     button: |
       **Defendant has used, displayed, or threatened to use a firearm against the child(ren) or against a family member.**:
@@ -1057,9 +1042,9 @@ attachment:
       - "danger_more_abuse_children": ${ children[0].in_danger }
       - "danger_more_abuse_other_children": |
           % if children[1].in_danger or children[2].in_danger:
-          **Yes**
+          True
           % else:
-          **No**
+          False
           % endif
       - "children1_relationship_users1": ${ children[0].relationship_users1 }
       - "children1_relationship_users1": ${ children[0].relationship_users1 }
