@@ -1,4 +1,11 @@
 comment: |
+  Idea is to ask this at start of main RFA interview (after the edited screening questions):
+  Are any children involved in this abuse case?
+  If no, follow current RFA interview order
+  If yes, then ask if they want the order on behalf of just the kid(s) or for themselves and the kids
+  If for both, follow current RFA interview order
+  If just on behalf of kids, follow this new RFA OBA interview order
+  
   Look at resulting PDF and get data into fields
   
   This interview includes the questions specific to RFA on behalf of child. 
@@ -50,6 +57,13 @@ code: |
   al_form_type = "starts_case" 
 ---
 objects:
+  - all_courts: ALCourtLoader.using(file_name='courts_list.xlsx')
+---
+code: |
+  trial_court = all_courts.as_court('trial_court', trial_court_index)
+  trial_court.geolocate()  
+---
+objects:
   - users: ALPeopleList.using(ask_number=True,target_number=1)
   - other_parties: ALPeopleList.using(ask_number=True,target_number=1)
   - children: ALPeopleList.using(ask_number=True,complete_attribute="complete")
@@ -88,7 +102,7 @@ code: |
     request_not_abuse_children
     request_all_emergency
     existing_order
-    trial_court.address.address
+    trial_court
     docket_number
     set_progress(90)
   RFA_complaint_on_behalf_of_minor_preview_question
@@ -576,20 +590,14 @@ code: |
   [user.address.address for user in users.complete_elements()]
   addresses_to_search = [user.address for user in users.complete_elements()]
 ---
-#####Review screen#####
+#####OBO CHILD Review screen#####
 ---
 id: OBO CHILD rfacomplaintonbehalfofminor review screen
 event: review_rfacomplaintonbehalfofminor
 question: |
   Review your answers
 review:
-  - Edit: trial_court
-    button: |
-      **Trial court**
-  
-      % if defined("trial_court.address.county"):
-      * address: ${ trial_court.address.block() }
-      % endif
+
   - Edit: docket_number
     button: |
       **Docket number**:
@@ -615,131 +623,88 @@ review:
       % for item in users:
         * ${ item }
       % endfor
+      
+      
+      
   - Edit: users1_relationship_to_children1
     button: |
-      **Your relationship to child 1**:
-      ${ users1_relationship_to_children1 }
+      OBO Your relationship to child or children:
+      **${ users1_relationship_to_children1 }**
   - Edit: parent_guardian
     button: |
-      **Parent or guardian**:
-      ${ word(yesno(parent_guardian)) }
-  - Edit: family_member_description
-    button: |
-      **Family member description**:
-      ${ family_member_description }
-  - Edit: family_member
-    button: |
-      **Family member**:
-      ${ word(yesno(family_member)) }
-  - Edit: live_together
-    button: |
-      **Person who lives or has lived in the household with the child**:
-      ${ word(yesno(live_together)) }
-  - Edit: dating
-    button: |
-      **Child and defendant have or have had a dating relationship**:
-      ${ word(yesno(dating)) }
-  - Edit: other_relationship_description
-    button: |
-      **Other relationship description**:
-      ${ other_relationship_description }
-  - Edit: other_relationship
-    button: |
-      **Other relationship**:
-      ${ word(yesno(other_relationship)) }
-  - Edit: existing_order_divorce
-    button: |
-      **Divorce/sep**:
-      ${ word(yesno(existing_order_divorce)) }
-  - Edit: dissolution
-    button: |
-      **Dissolution**:
-      ${ word(yesno(dissolution)) }
-  - Edit: existing_order_RFA
-    button: |
-      **Existing order RFA**:
-      ${ word(yesno(existing_order_RFA)) }
-  - Edit: criminal_proceeding
-    button: |
-      **Criminal proceeding**:
-      ${ word(yesno(criminal_proceeding)) }
-  - Edit: parentage_order
-    button: |
-      **Parentage order**:
-      ${ word(yesno(parentage_order)) }
-  - Edit: guardianship_order
-    button: |
-      **Guardianship order**:
-      ${ word(yesno(guardianship_order)) }
-  - Edit: child_support_order
-    button: |
-      **Child support order**:
-      ${ word(yesno(child_support_order)) }
-  - Edit: juvenile_order
-    button: |
-      **Juvenile order**:
-      ${ word(yesno(juvenile_order)) }
-  - Edit: existing_order_state
-    button: |
-      **Existing order state**:
-      ${ existing_order_state }
-  - Edit: existing_order_county
-    button: |
-      **Existing order county**:
-      ${ existing_order_county }
-  - Edit: existing_order_users_attorney
-    button: |
-      **Existing order users attorney**:
-      ${ existing_order_users_attorney }
-  - Edit: existing_order_OP_attorney
-    button: |
-      **Existing order OP attorney**:
-      ${ existing_order_OP_attorney }
+      OBO Defendant's relationship to the child or children:
+      
+      % if parent_guardian:
+      **Parent or guardian**
+      % endif
+      % if family_member:
+      **Family member: ${ family_member_description }**
+      % endif
+      % if live_together:
+      **Person who lives or has lived in the household with the child**
+      % endif      
+      % if dating:
+      **Child and defendant have or have had a dating relationship**
+      % endif      
+      % if other_relationship:
+      **Other relationship: ${ other_relationship_description }**
+      % endif
   - Edit: serious_incident_date
     button: |
-      **Date of most serious incident**:
-      ${ serious_incident_date }
-  - Edit: serious_incident_yes
-    button: |
-      **There was an incident**:
-      ${ word(yesno(serious_incident_yes)) }
+      OBO Date of most serious incident:
+      **${ serious_incident_date }**
+      
   - Edit: serious_incident_abused
     button: |
-      **Abused the child (physically injured or otherwise treated the child in a mannerwhich placed the child’s life, health, development or welfare in jeopardy.)**:
-      ${ word(yesno(serious_incident_abused)) }
-  - Edit: other_parties1_parent_abuse
-    button: |
-      **Defendant is a parent/legal guardian and either (1) inflicted physical punishmentout of anger, or (2) physically punished the child in an excessive, unreasonable, or cruel manner.**:
-      ${ word(yesno(other_parties1_parent_abuse)) }
-  - Edit: serious_incident_stalked_children
-    button: |
-      **Stalked the child/children as defined in 12 V.S.A. §5131(6).**:
-      ${ word(yesno(serious_incident_stalked_children)) }
-  - Edit: serious_incident_assault
-    button: |
-      **Sexually assaulted or sexually abused the child/children as defined in 15 V.S.A. §5131(5).**:
-      ${ word(yesno(serious_incident_assault)) }
-  - Edit: serious_incident_harm
-    button: |
-      **Attempted to cause or caused physical harm to the child/children.**:
-      ${ word(yesno(serious_incident_harm)) }
-  - Edit: serious_incident_fear
-    button: |
-      **Placed the child/children in fear of imminent serious physical harm.**:
-      ${ word(yesno(serious_incident_fear)) }
+      OBO Incident of abuse -- What happened
+      
+      The defendant did this:
+      
+      % if serious_incident_abused:
+      **Abused the child (physically injured or otherwise treated the child in a mannerwhich placed the child’s life, health, development or welfare in jeopardy.)**
+      % endif
+      
+      % if other_parties1_parent_abuse:
+      **Defendant is a parent/legal guardian and either (1) inflicted physical punishmentout of anger, or (2) physically punished the child in an excessive, unreasonable, or cruel manner.**
+      % endif      
+      
+      % if serious_incident_stalked_children:
+      **Stalked the child/children as defined in 12 V.S.A. §5131(6).**
+      % endif
+      
+      % if serious_incident_assault:
+      **Sexually assaulted or sexually abused the child/children as defined in 15 V.S.A. §5131(5).**
+      % endif      
+      
+      % if serious_incident_harm:
+      **Attempted to cause or caused physical harm to the child/children.**
+      % endif      
+      
+      % if serious_incident_fear:
+      **Placed the child/children in fear of imminent serious physical harm.**
+      % endif            
+      
 
-  - Edit: children[0].in_danger
-    button: |
-      **There is danger of further abuse to ${ children[0] }**:
-      ${ word(yesno(children[0].in_danger)) }
-  - Edit: danger_more_abuse_other_children
-    button: |
-      **There is danger of further abuse to other children in the household named below.**:
-      ${ word(yesno(danger_more_abuse_other_children)) }
   - Edit: danger_more_abuse
     button: |
-      **There is danger of more abuse**:
-      ${ word(yesno(danger_more_abuse)) }
+      OBO There is danger of more abuse:
+      **${ word(yesno(danger_more_abuse)) }**
+  - Edit: children[0].in_danger
+    button: |
+      OBO There is danger of further abuse to:
+      % for item in children:
+      
+        % if item.in_danger:
+        - **${ item }**
+        % endif
+      
+      % endfor   
+  - Edit: danger_more_abuse_other_children
+    button: |
+      OBO There is danger of further abuse to other children in the household named below:
+      ${ word(yesno(danger_more_abuse_other_children)) }
+
+
   - Edit: children1_relationship_users1
     button: |
       **Children1 relationship to users1**:
@@ -904,6 +869,14 @@ review:
     button: |
       **The Petitioner requests on an emergency basis the same relief as requested above, to the extent available.**:
       ${ word(yesno(request_all_emergency)) }
+  - note: | 
+      ##Filing##
+  - Edit: 
+    - trial_court_index
+    - recompute:
+      - trial_court
+    button: |
+      Filing for an RFA order in the Family Court of this county in Vermont: **${ trial_court.address.county }**
   - Edit: signature_date
     button: |
       **Date of signature**:
@@ -1071,7 +1044,7 @@ attachment:
       - "existing_order_users_attorney": ${ existing_order_users_attorney }
       - "existing_order_OP_attorney": ${ existing_order_OP_attorney }
       - "serious_incident_date": ${ serious_incident_date.format() }
-      - "serious_incident_yes": ${ serious_incident_yes }
+      - "serious_incident_yes": ${ True }
       - "serious_incident_abused": ${ serious_incident_abused }
       - "other_parties1_parent_abuse": ${ other_parties1_parent_abuse }
       - "serious_incident_stalked_children": ${ serious_incident_stalked_children }
@@ -1088,26 +1061,26 @@ attachment:
           % else:
           **No**
           % endif
-      - "children1_relationship_users1": ${ children1_relationship_users1 }
-      - "children1_relationship_users1": ${ children1_relationship_users1 }
-      - "children1_relationship_OP": ${ children1_relationship_OP }
-      - "children1_relationship_OP": ${ children1_relationship_OP }
+      - "children1_relationship_users1": ${ children[0].relationship_users1 }
+      - "children1_relationship_users1": ${ children[0].relationship_users1 }
+      - "children1_relationship_OP": ${ children[0].relationship_OP }
+      - "children1_relationship_OP": ${ children[0].relationship_OP }
       - "children2_name": ${ children[1] }
       - "children2_name": ${ children[1] }
       - "children2_birthdate": ${ children[1].birthdate.format() }
       - "children2_birthdate": ${ children[1].birthdate.format() }
-      - "children2_relationship_users1": ${ children2_relationship_users1 }
-      - "children2_relationship_users1": ${ children2_relationship_users1 }
-      - "children2_relationship_OP": ${ children2_relationship_OP }
-      - "children2_relationship_OP": ${ children2_relationship_OP }
+      - "children2_relationship_users1": ${ children[1].relationship_users1 }
+      - "children2_relationship_users1": ${ children[1].relationship_users1 }
+      - "children2_relationship_OP": ${ children[1].relationship_OP }
+      - "children2_relationship_OP": ${ children[1].relationship_OP }
       - "children3_name": ${ children[2] }
       - "children3_name": ${ children[2] }
       - "children3_birthdate": ${ children[2].birthdate.format() }
       - "children3_birthdate": ${ children[2].birthdate.format() }
-      - "children3_relationship_users1": ${ children3_relationship_users1 }
-      - "children3_relationship_users1": ${ children3_relationship_users1 }
-      - "children3_relationship_OP": ${ children3_relationship_OP }
-      - "children3_relationship_OP": ${ children3_relationship_OP }
+      - "children3_relationship_users1": ${ children[2].relationship_users1 }
+      - "children3_relationship_users1": ${ children[2].relationship_users1 }
+      - "children3_relationship_OP": ${ children[2].relationship_OP }
+      - "children3_relationship_OP": ${ children[2].relationship_OP }
       - "used_firearm": ${ used_firearm }
       - "incarcerated": ${ incarcerated }
       - "children1_no_shelter": ${ children1_no_shelter }
