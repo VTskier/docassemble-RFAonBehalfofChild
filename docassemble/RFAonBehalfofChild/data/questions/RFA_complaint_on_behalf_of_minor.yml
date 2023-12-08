@@ -1,13 +1,15 @@
 comment: |
   Idea is to ask this at start of main RFA interview (after the edited screening questions):
-  Are any children involved in this abuse case?
-  If no, follow current RFA interview order
-  If yes, then ask if they want the order on behalf of just the kid(s) or for themselves and the kids
-  If for both, follow current RFA interview order
-  If just on behalf of kids, follow this new RFA OBA interview order
+  Who needs protection?
+  If just the user, follow current RFA interview order
+  If both user and kids, follow current RFA interview order
+  If only OBO child, follow this new RFA OBA interview order
+
   
+  Move this to custody screen       Names of other children I want custody of.
   Keep working on review screen
   Need help with   - Edit children[0].relationship_users1  and Edit request_not_abuse_children
+  Format the dates on the OBO Complaint PDF     ${ format_date(users[0].birthdate, format='M/d/yyyy') }
   
   This interview includes the questions specific to RFA on behalf of child. 
   I built this by running the OBO Complaint through the Weaver. Need to add Affidavit, too.
@@ -58,13 +60,6 @@ code: |
   al_form_type = "starts_case" 
 ---
 objects:
-  - all_courts: ALCourtLoader.using(file_name='courts_list.xlsx')
----
-code: |
-  trial_court = all_courts.as_court('trial_court', trial_court_index)
-  trial_court.geolocate()  
----
-objects:
   - users: ALPeopleList.using(ask_number=True,target_number=1)
   - other_parties: ALPeopleList.using(ask_number=True,target_number=1)
   - children: ALPeopleList.using(ask_number=True,complete_attribute="complete")
@@ -82,19 +77,21 @@ code: |
   #nav.set_section("review_rfacomplaintonbehalfofminor")
   user_role = "plaintiff"
   user_ask_role = "plaintiff"
-  children.gather()
-  children[0].name.first
-  children[0].birthdate
+
   who_needs_protection  
-  if who_needs_protection == 'I’m asking for an RFA order only for a child or children under the age of 18':
+  if who_needs_protection['order_OBO_child']:
     users.gather()
     users[0].name.first
     users[0].birthdate
+    children.gather()
+    children[0].name.first
+    children[0].birthdate
     other_parties.gather()
     other_parties[0].name.first
     other_parties[0].birth_month
     other_parties[0].address.address
     parent_guardian
+    incarcerated
     set_progress(12)
     serious_incident_date
     danger_more_abuse
@@ -304,14 +301,18 @@ validation code: |
 ---
 id: initial_screening_questions_3
 question: |
-  See if this interview is right for your situation - EDIT THIS ON MAIN RFA FORM to say Who needs protection
+  See if this interview is right for your situation - EDIT THIS ON MAIN RFA FORM to say Who needs protection and include the bolding I added and the new variable names
 fields:
   - "Who needs protection from abuse?": who_needs_protection
-    input type: radio
+    datatype: checkboxes
+    none of the above: False
+    minlength: 1
     choices:
-      - I need this order to protect me
-      - I need this order to protect me and my child or children
-      - I’m asking for an RFA order only for a child or children under the age of 18
+      - "I need this order to protect **me only**": order_for_me
+      - "I need this order to protect **me and my child or children**": order_for_both
+      - "I’m asking for an RFA order **only on behalf of a child or children** under the age of 18": order_OBO_child
+  - note: |
+      On the next screen we'll ask about you, the person filling out this form. You are the petitioner or plaintiff.
 ---
 id: Existing orders or court proceedings
 question: |
@@ -464,11 +465,11 @@ question: |
   More about the situation
 fields:    
 
-  - "Defendant is incarcerated and has been convicted of one of the crimes specified in 15 V.S.A. §1103(c)(1)(B).": incarcerated
+  - "Defendant is incarcerated and has been convicted of one of the crimes specified in 15 V.S.A. §1103(c)(1)(B) ${ display_template(list_of_crimes, scrollable=True, collapse=True) }": incarcerated
     datatype: yesno
   - "Defendant has used, displayed, or threatened to use a firearm against the children or against a family member.": used_firearm
     datatype: yesno
-  - "The child or children will be forced to leave their current home and will be without shelter unless defendant is ordered to leave the residence.  IF YES, JUMP TO REGULAR RFA QUESTIONS ABOUT SHARED HOME": children1_no_shelter
+  - "The child or children will be forced to leave their current home and will be without shelter unless defendant is ordered to leave the residence.  IF YES, JUMP TO REGULAR RFA QUESTIONS ABOUT SHARED HOME id: About your home continued": children1_no_shelter
     datatype: yesno
   - "The home is located at": residence_shared_address
     maxlength: 25
@@ -852,12 +853,6 @@ review:
     button: |
       **Residence of OP**:
       ${ word(yesno(residence_of_OP)) }
-  - Edit: 
-    - trial_court_index
-    - recompute:
-      - trial_court
-    button: |
-      Filing for an RFA order in the Family Court of this county in Vermont: **${ trial_court.address.county }**
   - Edit: signature_date
     button: |
       **Date of signature**:
@@ -930,7 +925,37 @@ edit:
   - birthdate
   - signature
 confirm: True
-
+---
+---
+template: list_of_crimes
+subject: See the list of crimes
+content: |
+  Those crimes are:
+  
+  * murder
+  
+  * attempted murder
+  
+  * kidnapping
+  
+  * domestic assault
+  
+  * aggravated domestic assault
+  
+  * sexual assault
+  
+  * aggravated sexual assault
+  
+  * stalking
+  
+  * aggravated stalking
+  
+  * lewd or lascivious conduct with a child
+  
+  * use of a child in a sexual performance, or
+  
+  * consenting to a sexual performance.
+---
 ---
 id: download rfacomplaintonbehalfofminor
 event: rfacomplaintonbehalfofminor_download
