@@ -6,7 +6,8 @@ comment: |
   If for both, follow current RFA interview order
   If just on behalf of kids, follow this new RFA OBA interview order
   
-  Look at resulting PDF and get data into fields
+  Keep working on review screen
+  Need help with   - Edit children[0].relationship_users1  and Edit request_not_abuse_children
   
   This interview includes the questions specific to RFA on behalf of child. 
   I built this by running the OBO Complaint through the Weaver. Need to add Affidavit, too.
@@ -590,47 +591,20 @@ code: |
   [user.address.address for user in users.complete_elements()]
   addresses_to_search = [user.address for user in users.complete_elements()]
 ---
-#####OBO CHILD Review screen#####
+
+
+
+
+
+
+
+#####OBO CHILD items for review screen#####
 ---
 id: OBO CHILD rfacomplaintonbehalfofminor review screen
 event: review_rfacomplaintonbehalfofminor
 question: |
   Review your answers
 review:
-
-  - Edit: docket_number
-    button: |
-      **Docket number**:
-      ${ docket_number }
-  - Edit: children.revisit
-    button: |
-      **OBO Children**
-
-      % for item in children:
-        **${ item }**
-        
-        - Birthdate: ${ item.birthdate }
-        
-        - Relationship to you: ${ item.relationship_users1 }
-        
-        - Relationship to defendant: ${ item.relationship_OP }
-        
-        
-      % endfor
-  - Edit: other_parties.revisit
-    button: |
-      **Other parties**
-
-      % for item in other_parties:
-        * ${ item }
-      % endfor
-  - Edit: users.revisit
-    button: |
-      **Users**
-
-      % for item in users:
-        * ${ item }
-      % endfor
       
       
       
@@ -699,37 +673,161 @@ review:
     button: |
       OBO There is danger of more abuse:
       **${ word(yesno(danger_more_abuse)) }**
-  - Edit: children[0].in_danger
+  - Edit:
+    - children[0].relationship_users1
     button: |
       OBO There is danger of more abuse to:
       % for item in children:
       
         % if item.in_danger:
-        - **${ item }**
+        **${ item }**
+                
+        - Relationship to you: ${ item.relationship_users1 }
+        
+        - Relationship to defendant: ${ item.relationship_OP }
+        
         % endif
-      
       % endfor
-
-
-
-
-
   - Edit: used_firearm
     button: |
-      **Defendant has used, displayed, or threatened to use a firearm against the child(ren) or against a family member.**:
+      OBO Defendant has used, displayed, or threatened to use a firearm against the child(ren) or against a family member.:
       ${ word(yesno(used_firearm)) }
-  - Edit: incarcerated
-    button: |
-      **Defendant is incarcerated and has been convicted of one of the crimes specified in 15 V.S.A. §1103(c)(1)(B).**:
-      ${ word(yesno(incarcerated)) }
+
   - Edit: children1_no_shelter
     button: |
-      **The child(ren) will be forced to leave their current home and will be without shelter unless Defendant is ordered to leave the residence.**:
+      OBO The child(ren) will be forced to leave their current home and will be without shelter unless Defendant is ordered to leave the residence.:
       ${ word(yesno(children1_no_shelter)) }
+
+  - Edit: request_not_abuse_children
+    button: |
+      OBO What you want in the RFA order:
+      
+      - **Order Defendant not abuse child(ren) and not interfere with their personal liberty.**:
+      ${ word(yesno(request_not_abuse_children)) }
+      
+      - **Order Defendant refrain from stalking or sexually abusing the child(ren).**:
+      ${ word(yesno(request_no_stalking_assault)) }
+      
+      - **Order Defendant vacate immediately the residence (identified above) and sole possession be awarded to the Petitioner caring for the child(ren).**:
+      ${ word(yesno(request_leave)) }
+      
+      - **Order Defendant not to possess or purchase firearms for the duration of the order.**:
+      ${ word(yesno(request_no_firearms)) }
+      
+      - **Order Defendant to surrender immediately all firearms under Defendant’s ownership, possession, or control to law enforcement.**:
+      ${ word(yesno(request_surrender_firearms)) }
+      
+      - **Order Defendant refrain from cruelly treating the pet(s) of the parties or the pet(s) of the child(ren).**:
+      ${ word(yesno(request_no_pet_harm)) }
+      
+      - **Award temporary possession and control of any pet(s) owned by the parties or by the child(ren) to the Petitioner.**:
+      ${ word(yesno(request_control_of_pet)) }
+      
+      - **Order Defendant to stay away from the child(ren).**:
+      ${ word(yesno(request_stay_away)) }
+      
+      % if request_stay_away_feet != '':
+      - **This many feet:**:
+      ${ request_stay_away_feet }
+      % endif
+      
+      - **Order Defendant to refrain from contacting the minor child(ren) in any way.**:
+      ${ word(yesno(request_no_contact_children)) }
+      
+      - **Award the Petitioner temporary custody (Parental Right and Responsibilities) for the child(ren) (Child(ren) of the Petitioner and Defendant).**:
+      ${ word(yesno(request_temp_PRR)) }
+      
+      - **I want custody of other children, too.**:
+      ${ word(yesno(other_children_PRR)) }
+      
+      % if other_children_PRR_names != '':
+      - **Names of other children I want custody of.**:
+      ${ other_children_PRR_names }
+      % endif
+      
+      - **Order Defendant’s contact with the child(ren) supervised.**:
+      ${ word(yesno(request_supervised_contact)) }
+      
+      % if supervisor1_name != '':
+      - **Supervised by:**:
+      ${ supervisor1_name }
+      % endif
+      
+      % if supervisor1_location != '':
+      - **At this location:**:
+      ${ supervisor1_location }
+      % endif
+      
+      - **Order exchanges of the child(ren) for parent child contact take place at a certain location.**:
+      ${ word(yesno(request_children_exchange)) }
+      
+      % if supervisor2_location != '':
+      - **At this location:**:
+      ${ supervisor2_location }
+      % endif
+      
+      % if supervisor2_name != '':
+      - **Supervised by:**:
+      ${ supervisor2_name }
+      % endif
+      
+      - **Order Defendant not to take any regulated drug unless it is prescribed to Defendant by a physician or drink alcohol for at least 8 hours prior to a scheduled contact or during contact with the child(ren) and that Petitioner may cancel scheduled contact if Defendant appears to be under the influence of intoxicating substances (drugs/alcohol).**:
+      ${ word(yesno(request_no_drug_or_alcohol)) }
+      
+      - **Order Defendant not physically punish the child(ren) in any way.**:
+      ${ word(yesno(request_no_punish)) }
+      
+      - **Order Defendant to pay temporary child support for the child(ren).**:
+      ${ word(yesno(request_child_support)) }      
+      
+      - **Request something else.**:
+      ${ word(yesno(request_other)) }: ${ request_other_description }
+
+
+
+
+
+
+  - Edit: docket_number
+    button: |
+      **Docket number**:
+      ${ docket_number }
+  - Edit: children.revisit
+    button: |
+      **Children**
+
+      % for item in children:
+        **${ item }**
+        
+        - Birthdate: ${ item.birthdate }   
+        
+      % endfor
+  - Edit: other_parties.revisit
+    button: |
+      **Other parties**
+
+      % for item in other_parties:
+        * ${ item }
+      % endfor
+  - Edit: users.revisit
+    button: |
+      **Users**
+
+      % for item in users:
+        * ${ item }
+      % endfor
+  - Edit: request_all_emergency
+    button: |
+      **The Petitioner requests on an emergency basis the same relief as requested above, to the extent available.**:
+      ${ word(yesno(request_all_emergency)) }
   - Edit: residence_shared_address
     button: |
       **The home is located at**:
       ${ residence_shared_address }
+  - Edit: incarcerated
+    button: |
+      **Defendant is incarcerated and has been convicted of one of the crimes specified in 15 V.S.A. §1103(c)(1)(B).**:
+      ${ word(yesno(incarcerated)) }      
   - Edit: residence_owned
     button: |
       **The home is owned.**:
@@ -754,108 +852,6 @@ review:
     button: |
       **Residence of OP**:
       ${ word(yesno(residence_of_OP)) }
-  - Edit: request_not_abuse_children
-    button: |
-      **Order Defendant not abuse child(ren) and not interfere with their personal liberty.**:
-      ${ word(yesno(request_not_abuse_children)) }
-  - Edit: request_no_stalking_assault
-    button: |
-      **Order Defendant refrain from stalking or sexually abusing the child(ren).**:
-      ${ word(yesno(request_no_stalking_assault)) }
-  - Edit: request_leave
-    button: |
-      **Order Defendant vacate immediately the residence (identified above) and sole possession be awarded to the Petitioner caring for the child(ren).**:
-      ${ word(yesno(request_leave)) }
-  - Edit: request_no_firearms
-    button: |
-      **Order Defendant not to possess or purchase firearms for the duration of the order.**:
-      ${ word(yesno(request_no_firearms)) }
-  - Edit: request_surrender_firearms
-    button: |
-      **Order Defendant to surrender immediately all firearms under Defendant’s ownership, possession, or control to law enforcement.**:
-      ${ word(yesno(request_surrender_firearms)) }
-  - Edit: request_no_pet_harm
-    button: |
-      **Order Defendant refrain from cruelly treating the pet(s) of the parties or the pet(s) of the child(ren).**:
-      ${ word(yesno(request_no_pet_harm)) }
-  - Edit: request_control_of_pet
-    button: |
-      **Award temporary possession and control of any pet(s) owned by the parties or by the child(ren) to the Petitioner.**:
-      ${ word(yesno(request_control_of_pet)) }
-  - Edit: request_stay_away_feet
-    button: |
-      **Order Defendant to stay away from the child(ren).**:
-      ${ request_stay_away_feet }
-  - Edit: request_stay_away
-    button: |
-      **This many feet:**:
-      ${ word(yesno(request_stay_away)) }
-  - Edit: request_no_contact_children
-    button: |
-      **Order Defendant to refrain from contacting the minor child(ren) in any way.**:
-      ${ word(yesno(request_no_contact_children)) }
-  - Edit: request_temp_PRR
-    button: |
-      **Award the Petitioner temporary custody (Parental Right and Responsibilities) for the child(ren) (Child(ren) of the Petitioner and Defendant).**:
-      ${ word(yesno(request_temp_PRR)) }
-  - Edit: other_children_PRR_names
-    button: |
-      **Names of other child/ren I want custody of.**:
-      ${ other_children_PRR_names }
-  - Edit: other_children_PRR
-    button: |
-      **I want custody of other children, too.**:
-      ${ word(yesno(other_children_PRR)) }
-  - Edit: request_supervised_contact
-    button: |
-      **Order Defendant’s contact with the child(ren) supervised.**:
-      ${ word(yesno(request_supervised_contact)) }
-  - Edit: supervisor1_name
-    button: |
-      **Supervised by:**:
-      ${ supervisor1_name }
-  - Edit: supervisor1_location
-    button: |
-      **At this location:**:
-      ${ supervisor1_location }
-  - Edit: request_children_exchange
-    button: |
-      **Order exchanges of the child(ren) for parent child contact take place at a certain location.**:
-      ${ word(yesno(request_children_exchange)) }
-  - Edit: supervisor2_location
-    button: |
-      **At this location:**:
-      ${ supervisor2_location }
-  - Edit: supervisor2_name
-    button: |
-      **Supervised by:**:
-      ${ supervisor2_name }
-  - Edit: request_no_drug_or_alcohol
-    button: |
-      **Order Defendant not to take any regulated drug unless it is prescribed to Defendant by a physician or drink alcohol for at least 8 hours prior to a scheduled contact or during contact with the child(ren) and that Petitioner may cancel scheduled contact if Defendant appears to be under the influence of intoxicating substances (drugs/alcohol).**:
-      ${ word(yesno(request_no_drug_or_alcohol)) }
-  - Edit: request_no_punish
-    button: |
-      **Order Defendant not physically punish the child(ren) in any way.**:
-      ${ word(yesno(request_no_punish)) }
-  - Edit: request_child_support
-    button: |
-      **Order Defendant to pay temporary child support for the child(ren).**:
-      ${ word(yesno(request_child_support)) }
-  - Edit: request_other_description
-    button: |
-      **Describe what you want.**:
-      ${ request_other_description }
-  - Edit: request_other
-    button: |
-      **Request something else.**:
-      ${ word(yesno(request_other)) }
-  - Edit: request_all_emergency
-    button: |
-      **The Petitioner requests on an emergency basis the same relief as requested above, to the extent available.**:
-      ${ word(yesno(request_all_emergency)) }
-  - note: | 
-      ##Filing##
   - Edit: 
     - trial_court_index
     - recompute:
