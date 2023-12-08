@@ -8,8 +8,7 @@ comment: |
   
   Move this to custody screen       Names of other children I want custody of.
   Keep working on review screen
-  Need help with   - Edit children[0].relationship_users1  and Edit request_not_abuse_children
-  Format the dates on the OBO Complaint PDF     ${ format_date(users[0].birthdate, format='M/d/yyyy') }
+  Need help with   - Edit children[0].relationship_users1  and Edit request_not_abuse_children and edit children custody
   
   This interview includes the questions specific to RFA on behalf of child. 
   I built this by running the OBO Complaint through the Weaver. Need to add Affidavit, too.
@@ -98,6 +97,9 @@ code: |
     if danger_more_abuse:
       get_kids_in_danger
     request_not_abuse_children
+    if request_temp_PRR:
+      children[0].custody_wanted
+      other_children_PRR
     request_all_emergency
     existing_order
     trial_court
@@ -522,12 +524,6 @@ fields:
     datatype: yesno
   - note: If you choose custody, we will ask for the names of the children on the next screen.
     show if: request_temp_PRR
-  - "I want custody of other children, too.": other_children_PRR
-    datatype: yesno
-    show if: request_temp_PRR
-  - "Names of other children I want custody of.": other_children_PRR_names
-    maxlength: 68
-    show if: other_children_PRR
   - "Order defendant’s contact with the children to be supervised.": request_supervised_contact
     datatype: yesno
   - "Supervised by this person:": supervisor1_name
@@ -536,13 +532,19 @@ fields:
   - "At this location:": supervisor1_location
     maxlength: 27
     show if: request_supervised_contact
+  - note: |
+      A location might be "Grandfather's house" or "Sister-in-law's home"
+    show if: request_supervised_contact
   - "Order exchanges of the children for parent-child contact take place at a certain location.": request_children_exchange
     datatype: yesno
   - "At this location:": supervisor2_location
-    maxlength: 26
+    maxlength: 22
+    show if: request_children_exchange
+  - note: |
+      A location might be "Grandmother's house" or "Aunt's home"
     show if: request_children_exchange
   - "Supervised by this person:": supervisor2_name
-    maxlength: 21
+    maxlength: 22
     show if: request_children_exchange
   - "Order defendant to not take any regulated drug unless it is prescribed to defendant by a physician or drink alcohol for at least 8 hours prior to a scheduled contact or during contact with the children and that petitioner may cancel scheduled contact if defendant appears to be under the influence of intoxicating substances (drugs/alcohol).": request_no_drug_or_alcohol
     datatype: yesno
@@ -557,6 +559,18 @@ fields:
     show if: request_other
     hint: Order the defendant to ...
 ---   
+id: custody of other kids
+question: |
+  Asking for custody of other children in the household
+fields:
+  - "I want custody of other children who I have not listed already": other_children_PRR
+    datatype: yesno
+    show if: request_temp_PRR
+  - "Names of other children I want custody of (separate with commas)": other_children_PRR_names
+    maxlength: 68
+    show if: other_children_PRR
+
+---
 id: Emergency order
 question: |
   Asking for your order to go into effect right away
@@ -738,14 +752,6 @@ review:
       - **Award the Petitioner temporary custody (Parental Right and Responsibilities) for the child(ren) (Child(ren) of the Petitioner and Defendant).**:
       ${ word(yesno(request_temp_PRR)) }
       
-      - **I want custody of other children, too.**:
-      ${ word(yesno(other_children_PRR)) }
-      
-      % if other_children_PRR_names != '':
-      - **Names of other children I want custody of.**:
-      ${ other_children_PRR_names }
-      % endif
-      
       - **Order Defendant’s contact with the child(ren) supervised.**:
       ${ word(yesno(request_supervised_contact)) }
       
@@ -783,7 +789,26 @@ review:
       
       - **Request something else.**:
       ${ word(yesno(request_other)) }: ${ request_other_description }
-
+  - Edit: children[0].custody_wanted
+    button: |
+      % if children[0].custody_wanted:
+      You want custody of:
+      
+      * **${ showifdef('children[0]') }**
+      % else:
+      You do **not** want custody of:
+      
+      * **${ showifdef('children[0]') }**      
+      % endif
+  - Edit: other_children_PRR
+    button: |
+      - I want custody of other children, too.:
+      **${ word(yesno(other_children_PRR)) }**
+      
+      % if other_children_PRR_names != '':
+      - Names of other children I want custody of.:
+      **${ other_children_PRR_names }**
+      % endif
 
 
 
@@ -1009,14 +1034,14 @@ attachment:
       - "children1_name": ${ children[0] }
       - "children1_name": ${ children[0] }
       - "children1_name": ${ children[0] }
-      - "children1_birthdate": ${ children[0].birthdate.format() }
-      - "children1_birthdate": ${ children[0].birthdate.format() }
-      - "children1_birthdate": ${ children[0].birthdate.format() }
+      - "children1_birthdate": ${ format_date(children[0].birthdate, format='M/d/yyyy') }
+      - "children1_birthdate": ${ format_date(children[0].birthdate, format='M/d/yyyy') }
+      - "children1_birthdate": ${ format_date(children[0].birthdate, format='M/d/yyyy') }
       - "other_parties1_name": ${ other_parties[0] }
       - "other_parties1_name": ${ other_parties[0] }
-      - "other_parties1_birthdate": ${ other_parties[0].birthdate.format() }
+      - "other_parties1_birthdate": ${ format_date(other_parties[0].birthdate, format='M/d/yyyy') }
       - "users1_name": ${ users[0] }
-      - "users1_birthdate": ${ users[0].birthdate.format() }
+      - "users1_birthdate": ${ format_date(users[0].birthdate, format='M/d/yyyy') }
       - "users1_relationship_to_children1": ${ users1_relationship_to_children1 }
       - "other_parties1_address_address": ${ other_parties[0].address.address }
       - "other_parties1_address_state": ${ other_parties[0].address.state }
@@ -1073,16 +1098,16 @@ attachment:
       - "children1_relationship_OP": ${ children[0].relationship_OP }
       - "children2_name": ${ children[1] }
       - "children2_name": ${ children[1] }
-      - "children2_birthdate": ${ children[1].birthdate.format() }
-      - "children2_birthdate": ${ children[1].birthdate.format() }
+      - "children2_birthdate": ${ format_date(children[1].birthdate, format='M/d/yyyy') }
+      - "children2_birthdate": ${ format_date(children[1].birthdate, format='M/d/yyyy') }
       - "children2_relationship_users1": ${ children[1].relationship_users1 }
       - "children2_relationship_users1": ${ children[1].relationship_users1 }
       - "children2_relationship_OP": ${ children[1].relationship_OP }
       - "children2_relationship_OP": ${ children[1].relationship_OP }
       - "children3_name": ${ children[2] }
       - "children3_name": ${ children[2] }
-      - "children3_birthdate": ${ children[2].birthdate.format() }
-      - "children3_birthdate": ${ children[2].birthdate.format() }
+      - "children3_birthdate": ${ format_date(children[2].birthdate, format='M/d/yyyy') }
+      - "children3_birthdate": ${ format_date(children[2].birthdate, format='M/d/yyyy') }
       - "children3_relationship_users1": ${ children[2].relationship_users1 }
       - "children3_relationship_users1": ${ children[2].relationship_users1 }
       - "children3_relationship_OP": ${ children[2].relationship_OP }
