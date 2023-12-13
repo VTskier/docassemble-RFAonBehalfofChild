@@ -25,7 +25,7 @@ comment: |
   
   objects:
     - RFAcomplaintonbehalfofminor_Post_interview_instructions: ALDocument.using(title="Instructions", filename="rfacomplaintonbehalfofminor_next_steps.docx", enabled=True, has_addendum=False)
-  - RFAcomplaintonbehalfofminor_attachment: ALDocument.using(title="Relief from Abuse order on behalf of a child or children", filename="5_RFA_complaint_on_behalf_of_minor", enabled=True, has_addendum=False, )
+  - RFAcomplaintonbehalfofminor_attachment: ALDocument.using(title="RFA Complaint on behalf of a child or children", filename="5_RFA_complaint_on_behalf_of_minor", enabled=True, has_addendum=False, )
 
   
   This interview includes the questions specific to RFA on behalf of child. 
@@ -117,7 +117,7 @@ code: |
       get_kids_in_danger
     request_not_abuse_children
     if request_temp_PRR:
-      children[0].custody_wanted
+      get_kids_relationships
       other_children_PRR
     request_all_emergency
     existing_order
@@ -264,6 +264,11 @@ code: |
   children[i].birthdate
   children[i].complete=True
   children.there_are_any=True
+---
+code: |
+  for child in children: 
+    child.custody_wanted
+  get_kids_relationships = True
 ---
 id: how many children
 question: |
@@ -1025,7 +1030,7 @@ progress: 100
 # ALDocument objects specify the metadata for each template
 objects:
   - RFAcomplaintonbehalfofminor_Post_interview_instructions: ALDocument.using(title="Instructions", filename="rfacomplaintonbehalfofminor_next_steps.docx", enabled=True, has_addendum=False)
-  - RFAcomplaintonbehalfofminor_attachment: ALDocument.using(title="Relief from Abuse order on behalf of a child or children", filename="5_RFA_complaint_on_behalf_of_minor", enabled=True, has_addendum=False, )
+  - RFAcomplaintonbehalfofminor_attachment: ALDocument.using(title="RFA Complaint on behalf of a child or children", filename="5_RFA_complaint_on_behalf_of_minor", enabled=True, has_addendum=False, )
 ---
 # Bundles group the ALDocuments into separate downloads, such as for court and for the user
 objects:
@@ -1060,7 +1065,8 @@ attachment:
       - "children1_birthdate": ${ format_date(children[0].birthdate, format='M/d/yyyy') }
       - "other_parties1_name": ${ other_parties[0] }
       - "other_parties1_name": ${ other_parties[0] }
-      - "other_parties1_birthdate": ${ format_date(other_parties[0].birthdate, format='M/d/yyyy') }
+      - "other_parties1_birthdate": >-
+          ${ "/".join([str(f) for f in [other_parties[0].birth_month, other_parties[0].birth_day, other_parties[0].birth_year] if f]) }
       - "users1_name": ${ users[0] }
       - "users1_birthdate": ${ format_date(users[0].birthdate, format='M/d/yyyy') }
       - "users1_relationship_to_children1": ${ users1_relationship_to_children1 }
@@ -1075,22 +1081,22 @@ attachment:
       - "dating": ${ dating }
       - "other_relationship_description": ${ other_relationship_description }
       - "other_relationship": ${ other_relationship }
-      - "existing_order_divorce_yes": ${ existing_order_divorce }
-      - "existing_order_divorce_no": ${ not existing_order_divorce }
-      - "dissolution_yes": ${ dissolution }
-      - "dissolution_no": ${ not dissolution }
-      - "existing_order_RFA_yes": ${ existing_order_RFA }
-      - "existing_order_RFA_no": ${ not existing_order_RFA }
-      - "criminal_proceeding_yes": ${ criminal_proceeding }
-      - "criminal_proceeding_no": ${ not criminal_proceeding }
-      - "parentage_order_yes": ${ parentage_order }
-      - "parentage_order_no": ${ not parentage_order }
-      - "guardianship_order_yes": ${ guardianship_order }
-      - "guardianship_order_no": ${ not guardianship_order }
-      - "child_support_order_yes": ${ child_support_order }
-      - "child_support_order_no": ${ not child_support_order }
-      - "juvenile_order_yes": ${ juvenile_order }
-      - "juvenile_order_no": ${ not juvenile_order }
+      - "existing_order_divorce_yes": ${ existing_order["existing_order_divorce"] }
+      - "existing_order_divorce_no": ${ not existing_order["existing_order_divorce"] }
+      - "dissolution_yes": ${ existing_order["dissolution"] }
+      - "dissolution_no": ${ not existing_order["dissolution"] }
+      - "existing_order_RFA_yes": ${ existing_order["existing_order_RFA"] }
+      - "existing_order_RFA_no": ${ not existing_order["existing_order_RFA"] }
+      - "criminal_proceeding_yes": ${ existing_order["criminal_proceeding"] }
+      - "criminal_proceeding_no": ${ not existing_order["criminal_proceeding"] }
+      - "parentage_order_yes": ${ existing_order["parentage_order"] }
+      - "parentage_order_no": ${ not existing_order["parentage_order"] }
+      - "guardianship_order_yes": ${ existing_order["guardianship_order"] }
+      - "guardianship_order_no": ${ not existing_order["guardianship_order"] }
+      - "child_support_order_yes": ${ existing_order["child_support_order"] }
+      - "child_support_order_no": ${ not existing_order["child_support_order"] }
+      - "juvenile_order_yes": ${ existing_order["juvenile_order"] }
+      - "juvenile_order_no": ${ not existing_order["juvenile_order"] }
       - "existing_order_state": ${ existing_order_state }
       - "existing_order_county": ${ existing_order_county }
       - "existing_order_users_attorney": ${ existing_order_users_attorney }
