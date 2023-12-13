@@ -6,9 +6,27 @@ comment: |
   If only OBO child, follow this new RFA OBA interview order
 
   
-  Move this to custody screen       Names of other children I want custody of.
-  Keep working on review screen
+  Keep working on OBO review screen items
   Need help with   - Edit children[0].relationship_users1  and Edit request_not_abuse_children and edit children custody
+  
+  For merging in my RFA for minors
+
+  Use a code block like this one
+  mandatory: True
+  code: |
+    if have_school_age_children:
+      divorce_with_kids_attachment.enabled = True
+      divorce_no_kids_attachment.enabled = False
+    else:
+      divorce_with_kids_attachment.enabled = False
+      divorce_no_kids_attachment.enabled = True
+  
+  But with this block in the interview, delete enabled=True from all the complaints and affidavits because they are the ones that depend on the situation, and True = always true here!
+  
+  objects:
+    - RFAcomplaintonbehalfofminor_Post_interview_instructions: ALDocument.using(title="Instructions", filename="rfacomplaintonbehalfofminor_next_steps.docx", enabled=True, has_addendum=False)
+  - RFAcomplaintonbehalfofminor_attachment: ALDocument.using(title="Relief from Abuse order on behalf of a child or children", filename="5_RFA_complaint_on_behalf_of_minor", enabled=True, has_addendum=False, )
+
   
   This interview includes the questions specific to RFA on behalf of child. 
   I built this by running the OBO Complaint through the Weaver. Need to add Affidavit, too.
@@ -76,9 +94,9 @@ code: |
   #nav.set_section("review_rfacomplaintonbehalfofminor")
   user_role = "plaintiff"
   user_ask_role = "plaintiff"
-
+  
   who_needs_protection  
-  if who_needs_protection['order_OBO_child']:
+  if who_needs_protection["order_obo_child"]:
     users.gather()
     users[0].name.first
     users[0].birthdate
@@ -91,6 +109,7 @@ code: |
     other_parties[0].address.address
     parent_guardian
     incarcerated
+    children1_no_shelter
     set_progress(12)
     serious_incident_date
     danger_more_abuse
@@ -278,7 +297,7 @@ fields:
       
       Now choose the best description of the defendant's relationship to the child or children. The "defendant" is the person who is abusing the child/children.
     
-      Choose at least one.
+      Choose one.
   
   - "Parent or guardian": parent_guardian
     datatype: yesno
@@ -298,7 +317,9 @@ fields:
     show if: other_relationship
 validation code: |
   if [parent_guardian, family_member, live_together, dating, other_relationship].count(True) == 0:
-    validation_error("Please select at least one option.")
+    validation_error("Please select one option.")
+  if [parent_guardian, family_member, live_together, dating, other_relationship].count(True) > 1:
+    validation_error("Please select one option.")
 ---
 ---
 id: initial_screening_questions_3
@@ -312,7 +333,7 @@ fields:
     choices:
       - "I need this order to protect **me only**": order_for_me
       - "I need this order to protect **me and my child or children**": order_for_both
-      - "I’m asking for an RFA order **only on behalf of a child or children** under the age of 18": order_OBO_child
+      - "I’m asking for an RFA order **only on behalf of a child or children** under the age of 18": order_obo_child
   - note: |
       On the next screen we'll ask about you, the person filling out this form. You are the petitioner or plaintiff.
 ---
@@ -466,7 +487,8 @@ id: OBO more about the situation
 question: |
   More about the situation
 fields:    
-
+  - note: |
+      Select all that apply to this situation.
   - "Defendant is incarcerated and has been convicted of one of the crimes specified in 15 V.S.A. §1103(c)(1)(B) ${ display_template(list_of_crimes, scrollable=True, collapse=True) }": incarcerated
     datatype: yesno
   - "Defendant has used, displayed, or threatened to use a firearm against the children or against a family member.": used_firearm
@@ -561,12 +583,11 @@ fields:
 ---   
 id: custody of other kids
 question: |
-  Asking for custody of other children in the household
+  Custody of other children in the household
 fields:
   - "I want custody of other children who I have not listed already": other_children_PRR
     datatype: yesno
-    show if: request_temp_PRR
-  - "Names of other children I want custody of (separate with commas)": other_children_PRR_names
+  - "Names of other children. Separate with commas.": other_children_PRR_names
     maxlength: 68
     show if: other_children_PRR
 
