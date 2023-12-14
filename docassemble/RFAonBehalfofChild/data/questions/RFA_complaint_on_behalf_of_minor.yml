@@ -97,6 +97,16 @@ code: |
   
   who_needs_protection  
   if who_needs_protection["order_obo_child"]:
+
+    danger_more_abuse
+    if danger_more_abuse:
+      get_kids_in_danger
+    request_not_abuse_children
+    if request_temp_PRR:
+      get_kids_relationships
+      other_children_PRR
+    children.danger
+    
     users.gather()
     users[0].name.first
     users[0].birthdate
@@ -715,20 +725,11 @@ review:
       OBO There is danger of more abuse:
       **${ word(yesno(danger_more_abuse)) }**
   - Edit:
-    - children[0].relationship_users1
+    - children.revisit_danger
     button: |
       OBO There is danger of more abuse to:
-      % for item in children:
-      
-        % if item.in_danger:
-        **${ item }**
-                
-        - Relationship to you: ${ item.relationship_users1 }
-        
-        - Relationship to defendant: ${ item.relationship_OP }
-        
-        % endif
-      % endfor
+
+
   - Edit: used_firearm
     button: |
       OBO Defendant has used, displayed, or threatened to use a firearm against the child(ren) or against a family member.:
@@ -916,6 +917,24 @@ subquestion: |
   ${ children.table }
 
   ${ children.add_action() }
+
+---
+table: children.danger
+rows: children
+columns:
+  - Name: |
+      row_item.name.full() if defined("row_item.name.first") else ""
+  - In danger of more abuse: |
+      row_item.in_danger if defined("row_item.in_danger") else ""
+  - Relationship to you: |
+      row_item.relationship_users1 if defined("row_item.relationship_users1") else ""
+  - Relationship to defendant: |
+      row_item.relationship_OP if defined("row_item.relationship_OP") else ""
+edit:
+  - in_danger
+  - relationship_users1
+  - relationship_OP
+confirm: True
 ---
 table: children.table
 rows: children
@@ -928,7 +947,14 @@ edit:
   - name.first
   - birthdate
 confirm: True
+---
+continue button field: children.revisit_danger
+question: |
+  Edit in danger
+subquestion: |
+  ${ children.danger }
 
+  ${ children.add_action() }
 ---
 continue button field: other_parties.revisit
 question: |
