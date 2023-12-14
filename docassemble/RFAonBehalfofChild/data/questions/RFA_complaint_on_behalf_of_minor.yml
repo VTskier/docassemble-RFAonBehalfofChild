@@ -649,8 +649,6 @@ code: |
 
 #####OBO CHILD items for review screen#####
 ---
-
----
 id: OBO CHILD rfacomplaintonbehalfofminor review screen
 event: review_rfacomplaintonbehalfofminor
 need:
