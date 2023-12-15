@@ -7,7 +7,6 @@ comment: |
 
   
   Keep working on OBO review screen items
-  Need help with   - Edit children[0].relationship_users1  and Edit request_not_abuse_children and edit children custody
   
   For merging in my RFA for minors
 
@@ -807,12 +806,13 @@ review:
       - **Request something else.**:
       ${ word(yesno(request_other)) }: ${ request_other_description }
       
-  - Edit: danger_more_abuse
-    button: |
-      - OBO There is danger of more abuse to the child or children:
-      **${ word(yesno(danger_more_abuse)) }**
+
   - note: | 
-      ##Children  ADD THIS HEADER TO RFA INTERVIEW##      
+      % if children.number_gathered() == 1:
+      ##Child -- USE THIS NOTE AND REVISIT BLOCK BELOW ON MAIN RFA INTERVIEW##
+      % else:
+      ##Children##      
+      % endif
   - Edit: children.revisit
     button: |
       % for item in children:
@@ -821,7 +821,10 @@ review:
         - Birthdate: ${ item.birthdate }
         
       % endfor      
-
+  - Edit: danger_more_abuse
+    button: |
+      OBO There is danger of more abuse to the child or children:
+      **${ word(yesno(danger_more_abuse)) }**
   - Edit: children[0].in_danger
     button: |
       % if children[0].in_danger:
