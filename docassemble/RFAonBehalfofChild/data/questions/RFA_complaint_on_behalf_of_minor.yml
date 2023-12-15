@@ -811,37 +811,47 @@ review:
     button: |
       - OBO There is danger of more abuse to the child or children:
       **${ word(yesno(danger_more_abuse)) }**
-      
+  - note: | 
+      ##Children  ADD THIS HEADER TO RFA INTERVIEW##      
   - Edit: children.revisit
     button: |
-      **Children**
-
       % for item in children:
         **${ item }**
         
         - Birthdate: ${ item.birthdate }
         
       % endfor      
+
   - Edit: children[0].in_danger
     button: |
       % if children[0].in_danger:
-      - OBO **${ showifdef('children[0]') }** is in danger of more abuse
+      OBO **${ showifdef('children[0]') }** is in danger of more abuse
+      
+      - ${ showifdef('children[0].name.first') }'s relationship to you: ${ showifdef('children[0].relationship_users1') }
+      
+      - ${ showifdef('children[0].name.first') }'s relationship to defendant: ${ showifdef('children[0].relationship_users1') }
       % else:
-      - **${ showifdef('children[0]') }** is **not** in danger of more abuse      
+      **${ showifdef('children[0]') }** is **not** in danger of more abuse      
       % endif 
   - Edit: children[1].in_danger
     button: |
       % if children[1].in_danger:
-      - OBO **${ showifdef('children[1]') }** is in danger of more abuse
+      OBO **${ showifdef('children[1]') }** is in danger of more abuse
+      
+      - ${ showifdef('children[1].name.first') }'s relationship to you: ${ showifdef('children[1].relationship_users1') }
+      
+      - ${ showifdef('children[1].name.first') }'s relationship to defendant: ${ showifdef('children[1].relationship_users1') }
       % else:
-      - **${ showifdef('children[1]') }** is **not** in danger of more abuse
+      **${ showifdef('children[1]') }** is **not** in danger of more abuse
       % endif 
   - Edit: children[2].in_danger
     button: |
       % if children[2].in_danger:
-      - OBO **${ showifdef('children[2]') }** is in danger of more abuse
+      OBO **${ showifdef('children[2]') }** is in danger of more abuse
+      - ${ showifdef('children[2].name.first') }'s relationship to you: ${ showifdef('children[2].relationship_users1') }
+      - ${ showifdef('children[2].name.first') }'s relationship to defendant: ${ showifdef('children[2].relationship_users1') }
       % else:
-      - **${ showifdef('children[2]') }** is **not** in danger of more abuse
+      **${ showifdef('children[2]') }** is **not** in danger of more abuse
       % endif 
   - Edit: children[0].custody_wanted
     button: |
