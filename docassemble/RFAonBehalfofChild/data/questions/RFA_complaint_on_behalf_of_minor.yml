@@ -97,7 +97,6 @@ code: |
   
   who_needs_protection  
   if who_needs_protection["order_obo_child"]:
-
     danger_more_abuse
     if danger_more_abuse:
       get_kids_in_danger
@@ -105,7 +104,6 @@ code: |
     if request_temp_PRR:
       get_kids_relationships
       other_children_PRR
-    children.danger
     
     users.gather()
     users[0].name.first
@@ -450,8 +448,8 @@ fields:
 code: |
   for child in children: 
     child.in_danger
-    child.relationship_users1
-    child.relationship_OP
+    #child.relationship_users1
+    #child.relationship_OP
   get_kids_in_danger = True
 ---
 id: childrens custody relationships
@@ -653,12 +651,11 @@ code: |
 ---
 id: OBO CHILD rfacomplaintonbehalfofminor review screen
 event: review_rfacomplaintonbehalfofminor
+need:
+  - children.danger
 question: |
   Review your answers
 review:
-      
-      
-      
   - Edit: users1_relationship_to_children1
     button: |
       OBO Your relationship to child or children:
@@ -724,12 +721,11 @@ review:
     button: |
       OBO There is danger of more abuse:
       **${ word(yesno(danger_more_abuse)) }**
-  - Edit:
-    - children.revisit_danger
-    button: |
+  - note: |
       OBO There is danger of more abuse to:
-
-
+      
+      ${ children.danger }
+    show if: children.number_gathered() > 0
   - Edit: used_firearm
     button: |
       OBO Defendant has used, displayed, or threatened to use a firearm against the child(ren) or against a family member.:
@@ -932,8 +928,8 @@ columns:
       row_item.relationship_OP if defined("row_item.relationship_OP") else ""
 edit:
   - in_danger
-  - relationship_users1
-  - relationship_OP
+  #- relationship_users1
+  #- relationship_OP
 confirm: True
 ---
 table: children.table
@@ -947,14 +943,6 @@ edit:
   - name.first
   - birthdate
 confirm: True
----
-continue button field: children.revisit_danger
-question: |
-  Edit in danger
-subquestion: |
-  ${ children.danger }
-
-  ${ children.add_action() }
 ---
 continue button field: other_parties.revisit
 question: |
