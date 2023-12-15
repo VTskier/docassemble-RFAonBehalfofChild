@@ -96,14 +96,6 @@ code: |
   
   who_needs_protection  
   if who_needs_protection["order_obo_child"]:
-    danger_more_abuse
-    if danger_more_abuse:
-      get_kids_in_danger
-    request_not_abuse_children
-    if request_temp_PRR:
-      get_kids_relationships
-      other_children_PRR
-    
     users.gather()
     users[0].name.first
     users[0].birthdate
@@ -657,28 +649,33 @@ question: |
 review:
   - Edit: users1_relationship_to_children1
     button: |
-      OBO Your relationship to child or children:
+      % if children.number_gathered() == 1:
+      OBO Your relationship to child:
       **${ users1_relationship_to_children1 }**
+      % else:
+      OBO Your relationship to children:
+      **${ users1_relationship_to_children1 }**
+      % endif
+
   - Edit: parent_guardian
     button: |
-      OBO Defendant's relationship to the child or children:
-      
-      % if parent_guardian:
-      - **Parent or guardian**
+      % if children.number_gathered() == 1:
+      OBO Defendant's relationship to the child:
+      % else:
+      OBO Defendant's relationship to the children:
       % endif
-      
+      % if parent_guardian:
+      **Parent or guardian**
+      % endif
       % if family_member:
       - **Family member: ${ family_member_description }**
       % endif
-      
       % if live_together:
       - **Person who lives or has lived in the household with the child**
       % endif      
-      
       % if dating:
       -**Child and defendant have or have had a dating relationship**
       % endif      
-      
       % if other_relationship:
       - **Other relationship: ${ other_relationship_description }**
       % endif
@@ -721,13 +718,13 @@ review:
 
   - Edit: used_firearm
     button: |
-      OBO Defendant has used, displayed, or threatened to use a firearm against the child(ren) or against a family member.:
-      ${ word(yesno(used_firearm)) }
+      OBO Defendant has used, displayed, or threatened to use a firearm (gun) against the child(ren) or against a family member.:
+      **${ word(yesno(used_firearm)) }**
 
   - Edit: children1_no_shelter
     button: |
       OBO The child(ren) will be forced to leave their current home and will be without shelter unless Defendant is ordered to leave the residence.:
-      ${ word(yesno(children1_no_shelter)) }
+      **${ word(yesno(children1_no_shelter)) }**
 
   - Edit: request_not_abuse_children
     button: |
@@ -745,16 +742,16 @@ review:
       - **Order Defendant not to possess or purchase firearms for the duration of the order.**:
       ${ word(yesno(request_no_firearms)) }
       
-      - **Order Defendant to surrender immediately all firearms under Defendant’s ownership, possession, or control to law enforcement.**:
+      - **Order defendant to surrender immediately all firearms under defendant’s ownership, possession, or control to law enforcement.**:
       ${ word(yesno(request_surrender_firearms)) }
       
-      - **Order Defendant refrain from cruelly treating the pet(s) of the parties or the pet(s) of the child(ren).**:
+      - **Order defendant refrain from cruelly treating the pet(s) of the parties or the pet(s) of the child(ren).**:
       ${ word(yesno(request_no_pet_harm)) }
       
       - **Award temporary possession and control of any pet(s) owned by the parties or by the child(ren) to the Petitioner.**:
       ${ word(yesno(request_control_of_pet)) }
       
-      - **Order Defendant to stay away from the child(ren).**:
+      - **Order defendant to stay away from the child(ren).**:
       ${ word(yesno(request_stay_away)) }
       
       % if request_stay_away_feet != '':
@@ -762,13 +759,13 @@ review:
       ${ request_stay_away_feet }
       % endif
       
-      - **Order Defendant to refrain from contacting the minor child(ren) in any way.**:
+      - **Order defendant to refrain from contacting the minor child(ren) in any way.**:
       ${ word(yesno(request_no_contact_children)) }
       
-      - **Award the Petitioner temporary custody (Parental Right and Responsibilities) for the child(ren) (Child(ren) of the Petitioner and Defendant).**:
+      - **Award the Petitioner temporary custody (Parental Right and Responsibilities) for the child(ren) (Child(ren) of the Petitioner and defendant).**:
       ${ word(yesno(request_temp_PRR)) }
       
-      - **Order Defendant’s contact with the child(ren) supervised.**:
+      - **Order defendant’s contact with the child(ren) supervised.**:
       ${ word(yesno(request_supervised_contact)) }
       
       % if supervisor1_name != '':
@@ -794,7 +791,7 @@ review:
       ${ supervisor2_name }
       % endif
       
-      - **Order Defendant not to take any regulated drug unless it is prescribed to Defendant by a physician or drink alcohol for at least 8 hours prior to a scheduled contact or during contact with the child(ren) and that Petitioner may cancel scheduled contact if Defendant appears to be under the influence of intoxicating substances (drugs/alcohol).**:
+      - **Order defendant not to take any regulated drug unless it is prescribed to Defendant by a physician or drink alcohol for at least 8 hours prior to a scheduled contact or during contact with the child(ren) and that Petitioner may cancel scheduled contact if Defendant appears to be under the influence of intoxicating substances (drugs/alcohol).**:
       ${ word(yesno(request_no_drug_or_alcohol)) }
       
       - **Order Defendant not physically punish the child(ren) in any way.**:
