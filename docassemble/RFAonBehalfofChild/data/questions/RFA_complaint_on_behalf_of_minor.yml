@@ -5,8 +5,10 @@ comment: |
   If both user and kids, follow current RFA interview order
   If only OBO child, follow this new RFA OBA interview order
 
-  
-  Keep working on OBO review screen items
+  I cleaned up PDF
+  Need to add what you want in order in the review screen
+  Make a new project that merges this with RFA interview
+  Then, make a new project that merges that with RFA OBO affidavit
   
   For merging in my RFA for minors
 
@@ -470,22 +472,6 @@ fields:
   - "What is ${x.name.first}'s relationship to the defendant?": x.relationship_OP
     maxlength: 21
     show if: x.in_danger
-    
----
-    
-
-#  - "Children1 relationship to users1": children1_relationship_users1
-#    maxlength: 19
-#  - "Children1 relationship to OP": children1_relationship_OP
-#    maxlength: 21
-#  - "Children2 relationship to users1": children2_relationship_users1
-#    maxlength: 19
-#  - "Children2 relationship to OP": children2_relationship_OP
-#    maxlength: 21
-#  - "Children3 relationship users1": children3_relationship_users1
-#    maxlength: 19
-#  - "Children3 relationship to OP": children3_relationship_OP
-#    maxlength: 21
 ---    
 id: OBO more about the situation    
 question: |
@@ -646,7 +632,57 @@ event: review_rfacomplaintonbehalfofminor
   #- children.danger
 question: |
   Review your answers
-review:
+review:    
+
+  - note: | 
+      % if children.number_gathered() == 1:
+      ##Child -- USE THIS NOTE AND REVISIT BLOCK BELOW ON MAIN RFA INTERVIEW##
+      % else:
+      ##Children##      
+      % endif
+  - Edit: children.revisit
+    button: |
+      % for item in children:
+        **${ item }**
+        
+        - Birthdate: ${ item.birthdate }
+        
+      % endfor      
+  - Edit: danger_more_abuse
+    button: |
+      OBO There is danger of more abuse to the child or children:
+      **${ word(yesno(danger_more_abuse)) }**
+  - Edit: children[0].in_danger
+    button: |
+      % if children[0].in_danger:
+      OBO **${ showifdef('children[0]') }** is in danger of more abuse
+      
+      - ${ showifdef('children[0].name.first') }'s relationship to you: ${ showifdef('children[0].relationship_users1') }
+      
+      - ${ showifdef('children[0].name.first') }'s relationship to defendant: ${ showifdef('children[0].relationship_users1') }
+      % else:
+      **${ showifdef('children[0]') }** is **not** in danger of more abuse      
+      % endif 
+  - Edit: children[1].in_danger
+    button: |
+      % if children[1].in_danger:
+      OBO **${ showifdef('children[1]') }** is in danger of more abuse
+      
+      - ${ showifdef('children[1].name.first') }'s relationship to you: ${ showifdef('children[1].relationship_users1') }
+      
+      - ${ showifdef('children[1].name.first') }'s relationship to defendant: ${ showifdef('children[1].relationship_users1') }
+      % else:
+      **${ showifdef('children[1]') }** is **not** in danger of more abuse
+      % endif 
+  - Edit: children[2].in_danger
+    button: |
+      % if children[2].in_danger:
+      OBO **${ showifdef('children[2]') }** is in danger of more abuse
+      - ${ showifdef('children[2].name.first') }'s relationship to you: ${ showifdef('children[2].relationship_users1') }
+      - ${ showifdef('children[2].name.first') }'s relationship to defendant: ${ showifdef('children[2].relationship_users1') }
+      % else:
+      **${ showifdef('children[2]') }** is **not** in danger of more abuse
+      % endif 
   - Edit: users1_relationship_to_children1
     button: |
       % if children.number_gathered() == 1:
@@ -679,15 +715,41 @@ review:
       % if other_relationship:
       - **Other relationship: ${ other_relationship_description }**
       % endif
-  - Edit: serious_incident_date
+
+  - Edit: children[0].custody_wanted
     button: |
-      OBO Date of most serious incident:
-      **${ serious_incident_date }**
+      % if children[0].custody_wanted:
+      - CHANGE THIS LAYOUT ON RFA INTERVIEW You want custody of **${ showifdef('children[0]') }**
+      % else:
+      - You do **not** want custody of **${ showifdef('children[0]') }**      
+      % endif
+  - Edit: children[1].custody_wanted
+    button: |
+      % if children[1].custody_wanted:
+      - You want custody of **${ showifdef('children[1]') }**
+      % else:
+      - You do **not** want custody of **${ showifdef('children[1]') }**      
+      % endif
+  - Edit: other_children_PRR
+    button: |
+      - You want custody of other children, too.:
+      **${ word(yesno(other_children_PRR)) }**
+      
+      % if other_children_PRR_names != '':
+      - Names of other children you want custody of.:
+      **${ other_children_PRR_names }**
+      % endif
+
+
+
       
   - Edit: serious_incident_abused
     button: |
-      OBO Incident of abuse -- What happened
+      OBO Most serious incident of abuse -- What happened
       
+      Date of most serious incident:
+      **${ serious_incident_date }**
+
       The defendant did this:
       
       % if serious_incident_abused:
@@ -714,8 +776,6 @@ review:
       - **Placed the child/children in fear of imminent serious physical harm.**
       % endif      
       
-
-
   - Edit: used_firearm
     button: |
       OBO Defendant has used, displayed, or threatened to use a firearm (gun) against the child(ren) or against a family member.:
@@ -802,80 +862,7 @@ review:
       
       - **Request something else.**:
       ${ word(yesno(request_other)) }: ${ request_other_description }
-      
 
-  - note: | 
-      % if children.number_gathered() == 1:
-      ##Child -- USE THIS NOTE AND REVISIT BLOCK BELOW ON MAIN RFA INTERVIEW##
-      % else:
-      ##Children##      
-      % endif
-  - Edit: children.revisit
-    button: |
-      % for item in children:
-        **${ item }**
-        
-        - Birthdate: ${ item.birthdate }
-        
-      % endfor      
-  - Edit: danger_more_abuse
-    button: |
-      OBO There is danger of more abuse to the child or children:
-      **${ word(yesno(danger_more_abuse)) }**
-  - Edit: children[0].in_danger
-    button: |
-      % if children[0].in_danger:
-      OBO **${ showifdef('children[0]') }** is in danger of more abuse
-      
-      - ${ showifdef('children[0].name.first') }'s relationship to you: ${ showifdef('children[0].relationship_users1') }
-      
-      - ${ showifdef('children[0].name.first') }'s relationship to defendant: ${ showifdef('children[0].relationship_users1') }
-      % else:
-      **${ showifdef('children[0]') }** is **not** in danger of more abuse      
-      % endif 
-  - Edit: children[1].in_danger
-    button: |
-      % if children[1].in_danger:
-      OBO **${ showifdef('children[1]') }** is in danger of more abuse
-      
-      - ${ showifdef('children[1].name.first') }'s relationship to you: ${ showifdef('children[1].relationship_users1') }
-      
-      - ${ showifdef('children[1].name.first') }'s relationship to defendant: ${ showifdef('children[1].relationship_users1') }
-      % else:
-      **${ showifdef('children[1]') }** is **not** in danger of more abuse
-      % endif 
-  - Edit: children[2].in_danger
-    button: |
-      % if children[2].in_danger:
-      OBO **${ showifdef('children[2]') }** is in danger of more abuse
-      - ${ showifdef('children[2].name.first') }'s relationship to you: ${ showifdef('children[2].relationship_users1') }
-      - ${ showifdef('children[2].name.first') }'s relationship to defendant: ${ showifdef('children[2].relationship_users1') }
-      % else:
-      **${ showifdef('children[2]') }** is **not** in danger of more abuse
-      % endif 
-  - Edit: children[0].custody_wanted
-    button: |
-      % if children[0].custody_wanted:
-      - CHANGE THIS LAYOUT ON RFA INTERVIEW You want custody of **${ showifdef('children[0]') }**
-      % else:
-      - You do **not** want custody of **${ showifdef('children[0]') }**      
-      % endif
-  - Edit: children[1].custody_wanted
-    button: |
-      % if children[1].custody_wanted:
-      - You want custody of **${ showifdef('children[1]') }**
-      % else:
-      - You do **not** want custody of **${ showifdef('children[1]') }**      
-      % endif
-  - Edit: other_children_PRR
-    button: |
-      - You want custody of other children, too.:
-      **${ word(yesno(other_children_PRR)) }**
-      
-      % if other_children_PRR_names != '':
-      - Names of other children you want custody of.:
-      **${ other_children_PRR_names }**
-      % endif
 
 
 
