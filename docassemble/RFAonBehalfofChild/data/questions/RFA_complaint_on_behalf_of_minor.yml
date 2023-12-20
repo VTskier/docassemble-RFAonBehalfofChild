@@ -5,8 +5,7 @@ comment: |
   If both user and kids, follow current RFA interview order
   If only OBO child, follow this new RFA OBA interview order
 
-  I cleaned up PDF
-  Need to fix what you want in order in the review screen
+  Make PDF fields a bit taller so don't cut off g and y etc
   Make a new project that merges this with RFA interview
   Then, make a new project that merges that with RFA OBO affidavit
   
@@ -297,7 +296,7 @@ fields:
   - note: |
       **Your relationship to them**
   - "In a word or two, what is your relationship to the child or children?": users1_relationship_to_children1
-    maxlength: 22
+    maxlength: 24
   - note: |
       **Defendant's relationship to them**
       
@@ -310,7 +309,7 @@ fields:
   - "Family member": family_member
     datatype: yesno
   - "Family member description": family_member_description
-    maxlength: 22
+    maxlength: 24
     show if: family_member
   - "Person who lives or has lived in the household with the child": live_together
     datatype: yesno
@@ -319,7 +318,7 @@ fields:
   - "Other relationship": other_relationship
     datatype: yesno
   - "Other relationship description": other_relationship_description
-    maxlength: 22
+    maxlength: 32
     show if: other_relationship
 validation code: |
   if [parent_guardian, family_member, live_together, dating, other_relationship].count(True) == 0:
@@ -453,10 +452,10 @@ fields:
   - I want temporary custody of ${x.name.first}: x.custody_wanted
     datatype: yesnoradio
   - "In 1 or 2 words, what is ${x.name.first}'s relationship to you?": x.relationship_users1
-    maxlength: 19
+    maxlength: 22
     show if: x.custody_wanted
   - "What is ${x.name.first}'s relationship to the defendant?": x.relationship_OP
-    maxlength: 21
+    maxlength: 22
     show if: x.custody_wanted
 ---
 id: children in danger relationships
@@ -467,10 +466,10 @@ fields:
   - Is ${x.name.first} in danger of more abuse?: x.in_danger
     datatype: yesnoradio
   - "In 1 or 2 words, what is ${x.name.first}'s relationship to you?": x.relationship_users1
-    maxlength: 19
+    maxlength: 22
     show if: x.in_danger
   - "What is ${x.name.first}'s relationship to the defendant?": x.relationship_OP
-    maxlength: 21
+    maxlength: 22
     show if: x.in_danger
 ---    
 id: OBO more about the situation    
@@ -486,7 +485,7 @@ fields:
   - "The child or children will be forced to leave their current home and will be without shelter unless defendant is ordered to leave the residence.  IF YES, JUMP TO REGULAR RFA QUESTIONS ABOUT SHARED HOME id: About your home continued": children1_no_shelter
     datatype: yesno
   - "The home is located at": residence_shared_address
-    maxlength: 25
+    maxlength: 46
   - "The home is owned.": residence_owned
     datatype: yesno
   - "The home is rented.": residence_rented
@@ -542,7 +541,7 @@ fields:
     maxlength: 13
     show if: request_supervised_contact
   - "At this location:": supervisor1_location
-    maxlength: 27
+    maxlength: 29
     show if: request_supervised_contact
   - note: |
       A location might be "Grandfather's house" or "Sister-in-law's home"
@@ -550,7 +549,7 @@ fields:
   - "Order exchanges of the children for parent-child contact take place at a certain location.": request_children_exchange
     datatype: yesno
   - "At this location:": supervisor2_location
-    maxlength: 22
+    maxlength: 29
     show if: request_children_exchange
   - note: |
       A location might be "Grandmother's house" or "Aunt's home"
@@ -567,7 +566,7 @@ fields:
   - "I want to request something else.": request_other
     datatype: yesno
   - "Describe what you want. Start with a phrase like 'Order the defendant to ...'": request_other_description
-    maxlength: 80
+    maxlength: 92
     show if: request_other
     hint: Order the defendant to ...
 ---   
