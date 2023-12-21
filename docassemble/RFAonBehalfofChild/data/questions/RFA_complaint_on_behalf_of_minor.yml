@@ -5,7 +5,6 @@ comment: |
   If both user and kids, follow current RFA interview order
   If only OBO child, follow this new RFA OBA interview order
 
-  Make PDF fields a bit taller so don't cut off g and y etc
   Make a new project that merges this with RFA interview
   Then, make a new project that merges that with RFA OBO affidavit
   
